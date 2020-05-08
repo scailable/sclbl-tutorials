@@ -318,7 +318,7 @@ Yay, the `.wasm` executable has been created!
 While at this point in the tutorial we are effectively done and we have a `.wasm` executable that can be uploaded and run by Scailable, before we do so we explore a few more tricks that we often use. First, we often use [twiggy](https://rustwasm.github.io/twiggy/), a useful tool for inspecting the size and structure of your resulting executable. We can, for example, use it to find all the functions that are exported by the package by running (with a little tweak to grep only the exported functions from the full list):
 
 ```
-twiggy dominators sclbl-intsum.wasm | grep export
+$ twiggy dominators sclbl-intsum.wasm | grep export
 ```
 
 Which, on my machine, give me the following:
