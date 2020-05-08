@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<!-- Basic Page Needs
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<meta charset="utf-8">
+	<title>Scailable: Massively Distributed Compute.</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<!-- Mobile Specific Metas
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- FONT
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+
+	<!-- CSS
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link rel="stylesheet" href="css/normalize.css?v=1">
+	<link rel="stylesheet" href="css/skeleton.css?v=1">
+	<link rel="stylesheet" href="css/custom.css?v=1">
+
+	<!-- Scripts
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>	
+	<script src="js/sclbl-demo.js?v=1"></script>
+
+
+	<!-- Favicon
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link rel="shortcut icon" type="image/png" href="images/favicon.png">
+
+</head>
+
+<body class="code-snippets-visible demo-page">
+
+<div class="container">
+
+	<section class="header">
+		<h2 class="title">Developer salary prediction</h2>
+		<p>A small Scailable demo UI</p>
+	</section>
+
+	<div class="docs-section">
+
+		<p>Here we provide a simple web front-end to the demo salary model as described in <a href="https://github.com/scailable/sclbl-demos/tree/master/sclbl-101-getting-started" target="_blank">on our github demo page</a>. The inferences produced by the model are merely a rough estimate; don't take them too seriously &#x1F61C;.
+		</p>
+
+
+		<form onsubmit="return false;" method="GET" id="upload-sclbl-form">
+
+			<!-- User feedback div -->
+      		<div class="row feedback" id="upload-user-feedback"></div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Do you regularly contribute to open source projects?<br />
+						<i>Tick if more than once a month.</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" id="demo-f_open" checked="checked"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>What is your employment status?<br />
+						<i>Select what is applicable</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<select id="demo_f_employed">
+					  <option value="employed" selected="selected">Employed</option>
+					  <option value="self">Self-employed</option>
+					  <option value="unemployed">Unemployed</option>
+					</select>
+				</div>
+			</div>
+
+
+			<div class="row">
+				<div class="six columns">
+					<p>What is your educational level?<br />
+						<i>Select what is applicable</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<select id="demo_f_education">
+					  <option value="0" selected="selected">Up to (and including) high school</option>
+					  <option value="1">Bachelor level</option>
+					  <option value="2">MSc. level or higher</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Do you work in a large organization?<br />
+						<i>Tick the box if your organization employs more than 500 people</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" placeholder="" id="demo-f_organization"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Are you a <b>Data Scientist</b>?<br />
+						<i>Tick it the title applies to you (you can select more than one).</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" placeholder="" id="demo-f_datascientist" checked="checked"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Are you a <b>Designer</b>?<br />
+						<i>Tick it the title applies to you (you can select more than one).</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" placeholder="" id="demo-f_designer"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Are you a <b>Developer</b>?<br />
+						<i>Tick it the title applies to you (you can select more than one).</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" placeholder="" id="demo-f_developer"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Are you a <b>Devops person</b>?<br />
+						<i>Tick it the title applies to you (you can select more than one).</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" placeholder="" id="demo-f_devops"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Are you an <b>Engineer</b>?<br />
+						<i>Tick it the title applies to you (you can select more than one).</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" placeholder="" id="demo-f_engineer"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Are you a <b>Scientist</b>?<br />
+						<i>Tick it the title applies to you (you can select more than one).</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" placeholder="" id="demo-f_scientist"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>How many years of coding experience do you have?<br />
+						<i>Fill in a number.</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input class="u-full-width" type="text" placeholder="8" value="8" id="demo-f_years">
+				</div>
+			</div>
+
+
+			<div class="row">
+				<div class="six columns">
+					<p>How many years of <b>professional</b> coding experience do you have?<br />
+						<i>Fill in a number.</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input class="u-full-width" type="text" placeholder="2" value="2" id="demo-f_yearspro">
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Do you know how to work with <code>[R]</code><br />
+						<i>Tick it if yes.</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" placeholder="" id="demo-f_r"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>Do you know how to work with <code>python</code><br />
+						<i>Tick it if yes.</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input type="checkbox" class="u-full-width" placeholder="" id="demo-f_python" checked="checked"> 
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>What is your age<br />
+						<i>Fill in a number.</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<input class="u-full-width" type="text" placeholder="37" value="37" id="demo-f_age">
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="six columns">
+					<p>What best describes your gender<br />
+						<i>Select what is applicable</i>
+					</p>
+				</div>
+				<div class="six columns">
+					<select id="demo_f_gender">
+					  <option value="female" selected="selected">Female</option>
+					  <option value="male">Male</option>
+					  <option value="other">Other</option>
+					</select>
+				</div>
+			</div>
+			
+			<input class="button-primary" id="demo-run-button" type="submit" value="Predict">
+		</form>
+
+	</div>
+
+	<div class="docs-section" id="demo-results">
+		<h6 class="docs-header">Prediction results</h6>
+        
+        <div class="row">
+        	<div class="twelve columns">
+            	<div id="feedback">
+                	<pre id="js-feedback"> <br />... Click "PREDICT" to generate inferences ... </pre>
+            	</div>
+            </div>
+        </div>
+        <div class="row">
+        	<div class="twelve columns"> 	
+        		<p><div id="feedback-conclusion" style="color: #F48024"></div></p>
+        	</div>
+        </div>
+	</div>
+
+	<div class="docs-section" id="demo-info">
+		<h6 class="docs-header">Additional information</h6>
+		<p>This simple demo application supports the scailable documentation which you can find <a href="https://github.com/scailable/sclbl-demos/tree/master/sclbl-101-getting-started" target="_blank">on our github demo page</a>.</p>
+		<p>For a full run through of the model creation, please see this <a href="https://github.com/scailable/sclbl-demos/blob/master/sclbl-101-getting-started/sclbl-demo.ipynb" target="_blank">jupyter notebook</a>
+		<p><b>A small disclaimer:</b> This demo is solely intended to showcase the main functionality of <a href="https://www.scailable.net">Scailable</a>; we do not intend to provide accurate salary advice. Also, we duly apologize for the severe gender imbalance that was apparently picked up by the ML model.</p>
+	</div>
+
+
+	<div class="docs-section" id="demo-info-2">
+		<h6 class="docs-header">The javascript call</h6>
+		<p>This simple UI merely consumes a REST endpoint opened up by Scailable. The core javascript to do so looks like this:
+			<div id="feedback">
+                	<pre id="js-code-example" style="font-size: 1rem">
+
+// Create input and output objects; feature_vector should be a numerical vector
+sclbl.input = {
+    "content-type": "json",
+    "location": "embedded",
+    "data": "{\"input\": [" + JSON.stringify(feature_vector) + "]}"
+};
+
+sclbl.output = {
+    "content-type": "json",
+    "location": "echo"
+};
+
+// Endpoint settings
+let endpointUrl = "https://taskmanager.sclbl.net:8080/
+	task/45017963-8536-11ea-9efc-9600004e79cc";
+		
+let myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+let raw = JSON.stringify(
+    {
+        input: sclbl.input,
+        output: sclbl.output,
+        control: 1,
+        properties: {
+            language: "WASM",
+            profit: 0.5,
+            cycles: 1
+        }
+    }
+);
+
+let requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+};
+
+// Do the actual call to the Scailable REST endpoint:
+return fetch(endpointUrl, requestOptions)
+	.then(response => {
+	    if (!response.ok) {
+	        throw response
+	    }
+	    return response.text()
+	})
+	.then(text => {
+	    return (text)
+	})
+	.catch(err => {
+	    return ("Error")
+	})
+
+                	</pre>
+        	</div>
+		</p>
+	</div>
+
+
+	<div class="docs-section">
+		<p>Created in 2020 with &hearts;. For questions, contact us at <a href="mailto:go@scailable.net">go [at] scailable [dot] net</a>.</p>
+	</div>
+
+</div>
+
+</body>
+</html>
