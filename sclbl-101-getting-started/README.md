@@ -182,9 +182,10 @@ By all means not great, but definitely better. The score is now 0.17. We will mo
 
 Yay! It took some work, but now we arrive at the really cool stuff! We are going to deploy the `xgboost` model that we just fit. Since you should already have a Scailable account by now, the deployment process is superbly simple. First, if you haven't done so already you need to install the `sclblpy` package (we present the actual code instead of screenshots to make copy-pasting a bit easier):
 
-```python
-$ pip3 install sclblpy
 ```
+$ pip install sclblpy
+```
+(or `pip3`...)
 
 Next, you should create an example feature vector by simply selecting the first row of our training data. This will allow `sclblpy` to check your model fitting:
 
