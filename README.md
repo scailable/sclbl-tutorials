@@ -1,5 +1,5 @@
 # Scailable demos
-> Last updated 08-05-2020.
+> Last updated 12-05-2020.
 
 In this public repository we gather all tutorials that describe the the use of Scailable services. 
 
@@ -14,3 +14,11 @@ Next to the tutorials presented in this repository, we also have a number of int
 1. [Predicting a developers salary](https://www.scailable.net/demo/salary). Based on the most recent [Stack Overflow](https://insights.stackoverflow.com/survey/2019) survey, we created a simple model to predict the yearly salary of developers; give it [a spin](https://www.scailable.net/demo/salary/)! This simple front-end supports our getting started tutorial: [Scailable 101: Getting started](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started).
 2. [Scailable supports running complex models](https://www.scailable.net/demo/avm/) (such at [Bayesian Additive Regression Trees](https://projecteuclid.org/euclid.aoas/1273584455)) in the cloud, on the edge, or on a browser. Check how we can flexibly generate posterior predictive inferences for automatic property valuation models, anytime, anywhere.
 3. [Sometimes what you need is performance](https://www.scailable.net/demo/bench/). We provide nothing less. The inferences from our models are extremely fast; check out some of our benchmarks.
+
+
+----------
+
+
+Thanks for your attention! Let us know if you have any questions by pressing the "Help us improve" button at [https://admin.sclbl.net](https://admin.sclbl.net) or emailing us at [go at scailable dot net](mailto:go@scailable.net).
+
+If you find any mistakes in our tutorials, please do [add an issue](https://github.com/scailable/sclbl-tutorials/issues/new) so we can fix it asap!

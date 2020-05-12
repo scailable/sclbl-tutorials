@@ -1,5 +1,5 @@
 # Scailable 101 Getting Started
-> Last updated 08-05-2020; By the Scailable core team.
+> Last updated 12-05-2020; By the Scailable core team.
 
 This extensive tutorial provides the absolute starting point to start using [Scailable](https://www.scailable.net). We will take you through, *step-by-step*, the process of setting up your Scailable *beta* account (as currently we are in private beta), and the building of your first model. We will share all the steps as elaborately as possible, including the data we used to get to our end-goal: [a nice little web application that allows you to predict your yearly income](https://www.scailable.net/demo/salary). Admittedly, the predictions are pretty inaccurate, but the whole thing does go to show how easy it is to use [Scailable](https://www.scailable.net) to put *any* machine learning model in production. View it as a challenge to improve upon our model and deploy your improved version!
 
@@ -70,7 +70,7 @@ The Upload page, found at [https://admin.sclbl.net/upload.hmtl](https://admin.sc
 
 ![Manual upload](resources/images/2-upload.png "Manual upload")
 
-> **NOTE:** Building WebAssembly tasks from scratch can be quite tricky; we thus recommend using our packages. We focus on the `sclblpy` `python` package in the remainder of this document. However, if you want to build your own, please check out our [Create your own WASM](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-create-your-own-wasm) tutorial.
+> **NOTE:** Building WebAssembly tasks from scratch can be quite tricky; we thus recommend using our packages. We focus on the `sclblpy` `python` package in the remainder of this document. However, if you want to build your own WebAssembly executable and upload it to Scailable, please check out our [Create your own WASM](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-create-your-own-wasm) tutorial.
 
 ## Settings
 
@@ -84,7 +84,7 @@ Finally, the Settings page located at [https://admin.sclbl.net/settings.html](ht
 In this "101", we will explain the use of the `sclblpy` package to deploy ML / AI models directly from `python`. The `sclblpy` package, and its documentation, can all be found at [pypi](https://pypi.org/project/sclblpy/) and the package is thus easily installed using pip:
 
 ```
-> pip install sclblpy
+$ pip install sclblpy
 ```
 (or well, `pip3` depending on your installation. `sclblpy` is a `python >3.7` package).
 
@@ -94,7 +94,7 @@ For completeness, on my local machine, using the OSX terminal, installing `sclbl
 
 ![Terminal installation](resources/images/3-terminal.png "Terminal installation")
 
-> **NOTE:** We are actively improving the `sclblpy` package, so by the time you install your version, the minor versioning number might have gone up a notch.
+> **NOTE:** We are actively improving the `sclblpy` package, so by the time you install your version, the minor versioning number might have gone up a notch. Also, if you bump into any issues when using the package, please do report them [here](https://github.com/scailable/sclblpy/issues/new).
 
 <a name="model-fitting"></a>
 # 4. Model fitting
@@ -183,7 +183,7 @@ By all means not great, but definitely better. The score is now 0.17. We will mo
 Yay! It took some work, but now we arrive at the really cool stuff! We are going to deploy the `xgboost` model that we just fit. Since you should already have a Scailable account by now, the deployment process is superbly simple. First, if you haven't done so already you need to install the `sclblpy` package (we present the actual code instead of screenshots to make copy-pasting a bit easier):
 
 ```python
-> pip3 install sclblpy
+$ pip3 install sclblpy
 ```
 
 Next, you should create an example feature vector by simply selecting the first row of our training data. This will allow `sclblpy` to check your model fitting:
@@ -239,7 +239,7 @@ Clicking the shiny blue button takes us directly to an example webpage where we 
 
 ![Test an endpoint](resources/images/5-endpoint-run2.png "Test an endpoint")
 
-and tells us that this 28 year old developer with 3 years of coding experience could, according to our `xgboost` model, make 71500 USD a year. You can give it a spin yourself [here](https://admin.sclbl.net/run.html?cfid=45017963-8536-11ea-9efc-9600004e79cc&exin=%5B%5B0.0,%201.0,%200.0,%200.0,%201.0,%200.0,%200.0,%201.0,%201.0,%200.0,%200.0,%200.0,%203.0,%201.0,%200.0,%200.0,%200.0,%2028.0,%200.0,%201.0,%200.0%5D%5D).
+and tells us that this 28 year old developer with 3 years of coding experience could, according to our `xgboost` model, makes about 71500 USD a year. You can give it a spin yourself [here](https://admin.sclbl.net/run.html?cfid=45017963-8536-11ea-9efc-9600004e79cc&exin=%5B%5B0.0,%201.0,%200.0,%200.0,%201.0,%200.0,%200.0,%201.0,%201.0,%200.0,%200.0,%200.0,%203.0,%201.0,%200.0,%200.0,%200.0,%2028.0,%200.0,%201.0,%200.0%5D%5D).
 
 To finalize our salary prediction model deployment we will create a small web-app that allows users to interactively generate inferences. We cover this last step [below](#app). However, we now first take look at what happens under the hood and we will use the Scailable web admin to inspect our created model.
 
@@ -260,6 +260,8 @@ Running `sp.upload(mod2, fv, docs=docs)` was super simple, but what actually hap
 
 So, although you might receive your endpoint confirmation email within minutes, a lot has actually happened under the hood.
 
+> **NOTE:** You can learn more about WebAssembly and how we use it by checking our [create your own WASM](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-create-your-own-wasm) tutorial.
+
 <a name="wasm"></a>
 ### A note on WASM
 
@@ -275,7 +277,7 @@ After this small digression let's get back to the task at hand: let's have a loo
 
 Yay, our model is listed! We can expand it and look at the documentation we provided:
 
-![Docs 1](resources/images/5-demo-docs1.png "Docs 2")
+![Docs 1](resources/images/5-demo-docs1.png "Docs 1")
 
 At the bottom of the docs, we see this:
 
@@ -300,6 +302,28 @@ After clicking the "copy current code to clipboard" we can easily consume the en
 
 ![Copy code curl](resources/images/5-demo-task-curl.png "Task copy curl")
 
+> **NOTE:** The response when executing a task is a `json` string that contains multile fields. The `result` field will contain the requested inference, while the `statusCode` can be used to check whether the task was executed successfully. If `statusCode == 1` the result will be in the `result` field. If `statusCode == 0` an error occured, while if `statusCode == 5` the task takes to long to return directly, and the result can be downloaded at `resultURL` when its done.
+
+## Using the endpoint directly from python
+
+On the example page in the user-admin you can directly copy-past the `python` code to consume you endpoint:
+
+![Copy code example](resources/images/5-demo-task-python.png "Task copy example")
+
+However, you can also consume an endpoint using the `sclblpy` package. As long as you have `sclblpy` installed, you can run the following code:
+
+```python
+from sclblpy import run
+
+cfid = "e93d0176-90f8-11ea-b602-9600004e79cc"  
+fv = [1,2,3,4,5]
+result = run(cfid, fv)
+
+print(result) 
+```
+(where you would obviously change the `cfid` and the `fv` to match your uploaded model.
+
+You can find the documentation for `sclblpy` [here](https://pypi.org/project/sclblpy/).
 
 
 <a name="app"></a>
@@ -309,7 +333,7 @@ So, effectively the steps above show the main functionality of Scailable, but in
 
 [![Web app video](http://img.youtube.com/vi/KhnxhfJAc3g/0.jpg)](https://www.youtube.com/watch?v=KhnxhfJAc3g "Web application UI video.")
 
-You can try it yourself at [www.scailable.net/demo/salary](https://www.scailable.net/demo/salary), and see the source [here](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started/app).
+You can try the app yourself at [www.scailable.net/demo/salary](https://www.scailable.net/demo/salary), and see the source [here](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started/app).
 
 
 

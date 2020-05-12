@@ -1,5 +1,5 @@
 # XGBoost regression salary model
-> 23-04-2020
+> 12-05-2020
 
 This simple xgboost model aims to predict the salary of developers based on their background characteristics. Please see [the sclbl 101 notebook](https://github.com/scailable/sclbl-demos/blob/master/sclbl-101-getting-started/sclbl-demo.ipynb) for more information.
 
