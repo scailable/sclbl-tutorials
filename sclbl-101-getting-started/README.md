@@ -303,7 +303,7 @@ After clicking the "copy current code to clipboard" we can easily consume the en
 
 ![Copy code curl](resources/images/5-demo-task-curl.png "Task copy curl")
 
-> **NOTE:** The response when executing a task is a `json` string that contains multile fields. The `result` field will contain the requested inference, while the `statusCode` can be used to check whether the task was executed successfully. If `statusCode == 1` the result will be in the `result` field. If `statusCode == 0` an error occured, while if `statusCode == 5` the task takes to long to return directly, and the result can be downloaded at `resultURL` when its done.
+> **NOTE:** The response when executing a task is a `json` string that contains multile fields. The `result` field will contain the requested inference, while the `statusCode` can be used to check whether the task was executed successfully. If `statusCode == 1` the result will be in the `result` field. If `statusCode == 0` an error occured, while if `statusCode == 5` the task takes to long to return directly, and the result can be downloaded at `resultUrl` when its done.
 
 ## Using the endpoint directly from python
 

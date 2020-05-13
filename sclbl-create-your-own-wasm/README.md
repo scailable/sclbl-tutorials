@@ -1,9 +1,9 @@
 # Scailable Create your own WASM
-> 07-05-2020; By the Scailable core team.
+> 13-05-2020; By the Scailable core team.
 
 In this tutorial we explain, step-by-step, how you can create your own [WebAssembly](https://webassembly.org) executable and upload it to Scailable using our [manual upload functionality](https://admin.sclbl.net/upload.html). After uploading, you can directly use (or as we call it, *consume*) your executable using REST. The end-result of this tutorial is a functioning REST endpoint that allows you to [sum a list of integers](https://admin.sclbl.net/run.html?cfid=e93d0176-90f8-11ea-b602-9600004e79cc&exin=%5B1,2,3,4,5,6,7,8,9,10%5D). 
 
-While most of our users use our packages (such as the [sclblpy package](https://pypi.org/project/sclblpy/)) to *automatically* compile machine learning models to WebAssembly, it is very well possible to create, upload, and use your own custom executable. In this tutorial we will create an executable using `c`, but you should be able to use any language that allows you to compile to WebAssembly (e.g., `rust`, `go`, `c++`). Deep knowledge of `c` is not required: throughout the tutorial we focus on the general principles that allow you to create an executable that you can upload on our platform, not on the language particularities.
+While most of our users use our packages (such as the [sclblpy package](https://pypi.org/project/sclblpy/)) to *automatically* compile machine learning models to WebAssembly, it is very well possible to create, upload, and use your own custom executable. In this tutorial we will create a WebAssembly executable using `c`, but you should be able to use any language that allows you to compile to WebAssembly (e.g., `rust`, `go`, `c++`). Deep knowledge of `c` is not required: throughout the tutorial we focus on the general principles that allow you to create an executable that you can upload on our platform, not on the language particularities.
 
 In this tutorial we will cover the following steps:
 
@@ -12,14 +12,14 @@ In this tutorial we will cover the following steps:
 3. After collecting all the necessary background knowledge we will dig into the `c` code. [We will take you through all the code required to write our integer sum functionality](#c-project) and we close this section off by compiling our newly created application to WebAssembly. You can find all the code [here](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-create-your-own-wasm/source).
 4. Finally, we will demonstrate how to [upload the resulting WebAssembly](#upload) executable to Scailable, and how to consume the [resulting REST endpoint](#consumeREST).
 
-> **NOTE:** Throughout this tutorial we assume that you have access to a valid Scailable account (you can apply for one at [https://admin.sclbl.net](https://admin.sclble.net/signup.html)). If you have no clue how to use Scailable in the first place, we recommend you first check out our [Scailable 101: Getting started](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started) tutorial.
+> **NOTE:** Throughout this tutorial we assume that you have access to a valid Scailable account (you can apply for a **beta** account at [https://admin.sclbl.net](https://admin.sclble.net/signup.html)). If you have no clue how to use Scailable in the first place, we recommend you first check out our [Scailable 101: Getting started](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started) tutorial.
 
 <a name="understanding"></a>
 # 1. Understanding the WASM runtime
 
 Before creating a `.wasm` executable and uploading it to Scailable to put it into production, it is important to understand how the Scailable *runtime* interacts with the `.wasm` *executable*. In this section we explain the interactions between the *runtime* and your `.wasm` *executable* that you need to understand to create your own *executable* from scratch. We effectively build on the WASI standards; read more about these [here](https://hacks.mozilla.org/2019/03/standardizing-wasi-a-webassembly-system-interface/).
 
-> **NOTE:** In this section we will discuss the Scailable *runtime* in relatively general terms as Scailable does not use a single unique runtime. One of the beauties of compiling your functionality to WebAssembly is that it can be executed by different runtimes on various devices. We have runtimes available for our servers, browsers, and various IoT devices.
+> **NOTE:** In this section we will discuss the Scailable *runtime* in relatively general terms as Scailable does not use a single unique runtime. One of the beauties of compiling your functionality to WebAssembly is that it can be executed by different runtimes on various devices. We have runtimes available for our own servers, webbrowsers, and various IoT devices.
 
 ## Interactions between the *runtime* and the *executable*
 
@@ -30,7 +30,7 @@ Internally at Scailable we often think about the `.wasm` executables uploaded to
 3. The *runtime* needs to tell the *executable* to execute its functionality (i.e., to operate on the input-data)
 4. The *executable* needs to send the result back to the *runtime*.
 
-WebAssembly executables that are uploaded to Scailable need to [export](https://medium.com/front-end-weekly/webassembly-part-3-different-ways-to-call-the-exported-function-in-webassembly-194830bad873) the right functions to allow these four steps to be executed smoothly; we will detail each step in turn.
+WebAssembly executables that are uploaded to Scailable need to [export](https://medium.com/front-end-weekly/webassembly-part-3-different-ways-to-call-the-exported-function-in-webassembly-194830bad873) the right functions to allow these four steps to be executed smoothly; we will detail each step and the functions involved in turn.
 
 > **NOTE:** If you are not interested in the concepts, but just want to know the necessary exported functions, click [here](#exported_functions).
 
@@ -42,39 +42,35 @@ Since we are sticking to the current WASI standards (which are admittedly still 
 > **NOTE:** In the remainder of this tutorial, as we will be using the [WASIENV](https://medium.com/wasmer/wasienv-wasi-development-workflow-for-humans-1811d9a50345) toolchain to compile our `c` code to `.wasm`. This toolchain ensures that the `_start()` function is automatically added to the created executable and that the `_start()` function itself automatically calls the `main()` function.
 
 ### 2. Sending data to the executable
-The beauty of WebAssembly is that the resulting executables are small, fast, and secure. One of the crucial aspects of the security is the fact that the interactions between the executable and the runtime are limited. Thus, interfacing and sending data between the runtime and the executable requires some care. In the Scailable platform we use a pretty low-level mechanism of sending data to our executables which is flexible and fast:
+The beauty of WebAssembly is that the resulting executables are small, fast, and secure. One of the crucial aspects of this security is the fact that the interactions between the executable and the runtime are limited. Thus, interfacing and sending data between the runtime and the executable requires some care. In the Scailable platform we use a pretty low-level mechanism of sending data to our executables which is both flexible and fast:
 
-1. First, the *runtime* calls the function `malloc_buffer(int32_t length)` that is exported by the executable. The `length` argument indicates the length of the input data. This function should ensure that the executable allocates sufficient memory to store the input data it should return (a pointer to) the location of the allocated memory.
-2. Next, the *runtime* will write the input to the memory that is reserved by the *executable*. Thus, the input data is never passed as an argument to a function, but rather it is stored in a location in memory that is reserved by the *executable* such that the *executable* can retrieve it at will. 
+1. First, the *runtime* calls the function `malloc_buffer(int32_t length)` that is exported by the executable. The `length` argument indicates the length of the input data. This function should ensure that the executable allocates sufficient memory to store the input data and it should return (a pointer to) the location of the allocated memory.
+2. Next, the *runtime* will write the input to the memory that has been reserved by the *executable*. Thus, the input data is never passed as an argument to a function, but rather it is stored in a location in memory that is reserved by the *executable* such that the *executable* can retrieve it at will. 
 3. Once the *runtime* is done writing the input-data to the allocated memory buffer, it can now be accessed by the executable.
 
-In our platform, the input-data itself is provided in the "data" field of the REST call to Scailable. Thus, in the following `cURL` call to a REST endpoint with id `9abcec1a-8f9e-11ea-b5eb-a4d18cd729d6` on our servers
+In our platform, the input-data itself is provided in the "data" field of the REST call to Scailable. Thus, the following `cURL` call to a REST endpoint with id `9abcec1a-8f9e-11ea-b5eb-a4d18cd729d6` on our servers
 
 ```cURL
 curl 
 	--location 
-	--request POST 'http://localhost:8080/task/9abcec1a-8f9e-11ea-b5eb-a4d18cd729d6'
+	--request POST 'https://taskmanager.sclbl.net:8080/task/e93d0176-90f8-11ea-b602-9600004e79cc' 
 	--header 'Content-Type: application/x-www-form-urlencoded' 
-	--data-raw 
-		'{
-			"input": {
-				"content-type": "json",
-				"location": "embedded",
-				"data": "{\"input\": [1,2,3,4,5]}"
+	--data-raw '{
+		"input":{
+			"content-type":"json",
+			"location":"embedded",
+			"data":"{\"input\": [[1,2,3,4,5,6,7,8,9,10]]}"
 			},
-			"output": {
-				"content-type": "json",
-				"location": "echo"
+		"output":{
+			"content-type":"json","location":"echo"
 			},
-			"control": 1,
-			"properties": {
-				"language": "WASM",
-				"profit": 0.5,
-				"cycles": 1
+		"control":1,
+		"properties":{
+			"language":"WASM"
 			}
 		}'
 ```
-would write the JSON string `{"input": [1,2,3,4,5]}` to the allocated memory buffer that is accessible to the executable.
+will cause the JSON string `{"input": [[1,2,3,4,5,6,7,8,9,10]]}` to be written to the allocated memory buffer that is accessible to the executable.
 
 <a name="pred"></a>
 ### 3. Running the functionality / the task
@@ -84,21 +80,29 @@ The `pred()` function could implement pretty much any functionality you would li
 
 <a name="get_out_len"></a>
 ### 4. Retrieving the result
-The final step after sending data to the executable and running its functionality by calling the `pred()` function is retrieving the resulting output-data. This is similar to inserting data in the sense that we assume the `pred()` function to store its results somewhere in the memory that is accessible to the executable, and subsequently sharing the memory location with the runtime. To implement this the executable needs to export two functions:
+The final step after sending data to the executable and running its functionality by calling the `pred()` function, is retrieving the resulting output-data. This is similar to inserting data in the sense that we assume the `pred()` function stores its result somewhere in a chunk of memory that is accessible to the executable, and subsequently the executable shares the location of the result with the runtime. Finally, the runtime can retrieve the result. 
+
+To implement retrieving the result the executable needs to export two functions:
 
 1. The exported function `get_out_len()` should return the length of the output-data, and,
-2. the exported function `get_out_loc()` should return the location of the output-data. 
+2. the exported function `get_out_loc()` should return (a pointer to) the location of the output-data. 
 
-The Scailable runtime will call these two functions in sequence and copy whatever was written to the allocated memory into the result of the REST api call to our platform. The cURL call described above will return:
+The Scailable runtime will call these two functions in sequence and copy whatever was written to the allocated memory into the result of the REST api call to our platform. The cURL call described above will eventually return:
 
 ```
 {
-	"tid":"sclblt-9abcec1a-8f9e-11ea-b5eb-a4d18cd729d6-88",
-	"message":"{\"output\": [15]}"
+	"statusCode":1,
+	"result":"{\"output\": [55]}",
+	"tid":"sclblt-e93d0176-90f8-11ea-b602-9600004e79cc-20",
+	"message":"ComputeNode assigned successfully. Result returned and available at https://taskmanager.sclbl.net:8080/retrieve/sclblt-e93d0176-90f8-11ea-b602-9600004e79cc-20.",
+	"timeOut":false,
+	"resultUrl":"https://taskmanager.sclbl.net:8080/retrieve/sclblt-e93d0176-90f8-11ea-b602-9600004e79cc-20"
 }
 ```
 
-where the JSON string `{"output": [15]}` is the string that was stored by the executable. 
+where the JSON string `{"output": [15]}` in the `result` field is the string that was stored by the executable. Thus, this is the output-data.
+
+> **NOTE:** The `statusCode` highlights the status of the requested task. If `statusCode == 1` the task was executed and the rusults can be found in the `result` field. If `statusCode ==0 ` an error occured, and the `message` field will have a human readable explanation. If `statusCode == 5` the task took too long: in this case the resulting output-data can be downloaded from the `resultUrl` when it is done.
 
 ### Mandatory cleaning
 
@@ -118,7 +122,7 @@ So, we hope the above somewhat clarified the interactions between the Scailable 
 
 <a name="compilation"></a>
 # 2. Compiling to WASM
-Before we look at the actual working code to create our own `.wasm` executable using `c`, we briefly look at the tools for compilation. There are a few different options available, and one you will find around the web easily is the [Emscripten approach](https://developer.mozilla.org/en-US/docs/WebAssembly/C_to_wasm). While this works, this is very much geared towards creating `.wasm` executables that are ran in a `javascript` runtime. This approach nicely (in part) takes care of the input and output for you, but gives less out-of-the-box control than we like to optimize our executables. Also, as WebAssembly is becoming more popular, many [IDEs are also providing options to directly compile to WebAssembly](https://www.jetbrains.com/help/go/webassembly-project.html). It should not really matter which approach you use, as long as the right functions are exported.
+Before we look at the actual working code to create our own `.wasm` executable using `c`, we briefly look at the tools for compilation. There are a few different options available, and one you will find around the web easily is the [Emscripten approach](https://developer.mozilla.org/en-US/docs/WebAssembly/C_to_wasm). While this often works smoothly, this approach is very much geared towards creating `.wasm` executables that are ran in a `javascript` runtime. So, although this approach nicely (in part) takes care of the input and output for you, it gives less out-of-the-box control than we like to optimize our executables. Also, as WebAssembly is becoming more popular, many [IDEs are also providing options to directly compile to WebAssembly](https://www.jetbrains.com/help/go/webassembly-project.html). Effectively, it should not really matter which approach you use, as long as the right functions are exported.
 
 We currently use the [wasienv](https://medium.com/wasmer/wasienv-wasi-development-workflow-for-humans-1811d9a50345) toolchain to compile from `c` (and `c++`) to `wasm`. Installing the toolchain should be simple (on OSX and Linux that is):
 
@@ -135,12 +139,10 @@ Should compile whatever `source.c` specifies into the `output.wasm` executable.
 
 So, that's it pretty much (although we provide a few of our preferred compiler directives [below](#running_compile)).
 
-
-
 <a name="c-project"></a>
 # 3. A working `c` example
 
-In this section we will take you, step-by-step, through the `c` code we used to generate our own custom `.wasm` executable that can be directly consumed on the Scailable platform. You can find the source code [here](source). Functionally, the resulting executable takes a string of integers separated by commas (for example `1,4,5,9`) and returns the sum of all the values (`19` in this case). Note that the input size in this example application is not fixed to demonstrate how to deal with varying input-data sizes.
+In this section we will take you, step-by-step, through the `c` code we used to generate our own custom `.wasm` executable that can be directly consumed on the Scailable platform. You can find the source code [here](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-create-your-own-wasm/source). Functionally, the resulting executable takes a string of integers separated by commas (for example `1,4,5,9`) and returns the sum of all the values (`19` in this case). Note that the input size in this example application is not fixed to demonstrate how to deal with varying input-data sizes.
 
 We will first discuss the `c` code itself, and subsequently look at the compilation process.
 
@@ -150,9 +152,9 @@ The code we use in this example is split over 3 files:
 
 1. The file `sclblutil.c` contains a number of auxiliary functions that we created to implement integer sum functionality. These are mostly simple helper functions to (e.g.,) move between strings and integers, clean the input-data, and format the output-data. The function names are pretty much self-explanatory.
 2. The file `sclblutil.h` is the header file for `sclblutil.c`.
-3. The file `sclblmain.c` is where most of the actual functionality happens. This file contains the six required exported functions and the `sum()` function which carries out the core of the functionality.
+3. The file `sclblmain.c` is where most of the actual functionality happens. This file contains the six required exported functions and, additionally, the `sum()` function which carries out the core of the functionality.
 
-> **NOTE:** The functionality implemented in `sclblutil.c` is also implemented in various `c` libraries; we have tried to keep this example very light-weight and thus wrote our own "essentials". This (e.g.,) means that we do very little checking and parsing of the input-data in this example. For most serious project we however use various existing libraries, such as [tiny-json](https://github.com/rafagafe/tiny-json), to make our life easier.
+> **NOTE:** The functionalities implemented in `sclblutil.c` are also implemented in various `c` libraries; we have tried to keep this example very light-weight and thus wrote our own "essentials". This (e.g.,) means that we do very little checking and parsing of the input-data in this example. For most serious project we however use various existing libraries, such as [tiny-json](https://github.com/rafagafe/tiny-json), to make our life easier. We suggest you do the same.
 
 In the remainder of this tutorial we will focus on the content of the last file, `sclblmain.c`.
 
@@ -261,7 +263,7 @@ int sum(const char *str) {
 }
 ```
 
-The function takes a string containing comma seperated integers, splits the string, converts the strings to int, and adds them. Clearly, this is no rocket science. However, please do noet that after the `sum()` function is called by the `pred()` function, the resulting sum is stored in memory, *and* both the location (`out_loc`) and length (`out_len`) of the memory are stored. These are used to by the runtime to retrieve the output-data.
+The function takes a string containing comma seperated integers, splits the string, converts the strings to int, and adds them. Clearly, this is no rocket science. However, please do note that after the `sum()` function is called by the `pred()` function, the resulting sum is stored in memory, *and* both the location (`out_loc`) and length (`out_len`) of the memory are stored. These are used to by the runtime to retrieve the output-data.
 
 ### Returning the output-data
 Again, as [explained above](#get_out_len), the runtime will ask the executable for the location and size of the output-data. This is implemented using two simple functions:
@@ -295,7 +297,7 @@ void free_buffer(int32_t *p) {
 }
 ```
 
-The `free_buffer()` function is actually called twice by the runtime: once to free up the memory used for the input-data, and once to free up the memory used for the output-data.
+The `free_buffer()` function is called twice by the runtime: once to free up the memory used for the input-data, and once to free up the memory used for the output-data.
 
 At this point we are pretty much done writing our `c` code; so, let's look at the compilation!
 
@@ -357,7 +359,9 @@ And finally, we can obviously curl it:
 
 ![curl](resources/images/task-run-curl.png "curl")
 
-Yay! Success. We uploaded our own custom executable. You can play with it [here](https://admin.sclbl.net/run.html?cfid=e93d0176-90f8-11ea-b602-9600004e79cc&exin=%5B1,2,3,4,5,6,7,8,9,10%5D) and download the `.wasm` executable [here](https://cdn.sclbl.net:8000/file/e93d0176-90f8-11ea-b602-9600004e79cc.wasm).
+Yay! Success. We uploaded our own custom executable. You can play with it [here](https://admin.sclbl.net/run.html?cfid=e93d0176-90f8-11ea-b602-9600004e79cc&exin=%5B1,2,3,4,5,6,7,8,9,10%5D) and download the `.wasm` executable [here](https://cdn.sclbl.net:8000/file/e93d0176-90f8-11ea-b602-9600004e79cc.wasm). Finally, you can see a small video of the consumption of the endpoint [here](https://youtu.be/F5vicAJTG30).
+
+That's it for now! 
 
 ----------
 
