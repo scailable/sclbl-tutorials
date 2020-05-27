@@ -1,7 +1,7 @@
-# Scailable demos
-> Last updated 12-05-2020.
+# Scailable tutorials & FAQ
+> Last updated 26-05-2020.
 
-In this public repository we gather all tutorials that describe the the use of Scailable services. 
+In this public repository we gather tutorials, frequently asked questions, and showcases. If you are encountering any problems using our services or have suggestions for improvements, please do let us know by [creating a new issue](https://github.com/scailable/sclbl-tutorials/issues/new). 
 
 ## Tutorials
 
