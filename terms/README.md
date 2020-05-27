@@ -1,6 +1,6 @@
 # Scailable **BETA** terms
 
-> 2x-05-2020, by the Scailable core team. 
+> 27-05-2020, by the Scailable core team. 
 
 In this document, we describe the "agreement" we (Scailable BV) and you (the user of our product and services) enter into when you enroll in our **beta** program. We first describe [our product](#product) in more detail to introduce all the terms necessary to specify our agreement. Next, we describe both [our responsibilities](#our-commitment) in this agreement (and the limits thereof), and [yours](#your-commitment). Finally, we discuss the role of [your *balance*](#balance) in our agreement, and we discuss potential [termination](#termination) of this agreement. 
 
