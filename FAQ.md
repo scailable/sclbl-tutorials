@@ -10,5 +10,5 @@ We split our FAQ up into a few parts:
 * Questions about our roadmap
 * "Enterprise" questions (i.e. "We are a big company, can we get special things?")
 
-<a name="general"></a<
+<a name="general"></a>
 # Scailable services
