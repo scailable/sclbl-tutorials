@@ -1,7 +1,7 @@
 # Scailable Create your own WASM
 > 13-05-2020; By the Scailable core team.
 
-In this tutorial we explain, step-by-step, how you can create your own [WebAssembly](https://webassembly.org) executable and upload it to Scailable using our [manual upload functionality](https://admin.sclbl.net/upload.html). After uploading, you can directly use (or as we call it, *consume*) your executable using REST. The end-result of this tutorial is a functioning REST endpoint that allows you to [sum a list of integers](https://admin.sclbl.net/run.html?cfid=e93d0176-90f8-11ea-b602-9600004e79cc&exin=%5B1,2,3,4,5,6,7,8,9,10%5D). 
+In this tutorial we explain, step-by-step, how you can create your own [WebAssembly](https://webassembly.org) executable binary and upload it to Scailable using our [manual upload functionality](https://admin.sclbl.net/upload.html). After uploading, you can directly use (or as we call it, *consume*) your executable using REST. The end-result of this tutorial is a functioning REST endpoint that allows you to [sum a list of integers](https://admin.sclbl.net/run.html?cfid=e93d0176-90f8-11ea-b602-9600004e79cc&exin=%5B1,2,3,4,5,6,7,8,9,10%5D). 
 
 While most of our users use our packages (such as the [sclblpy package](https://pypi.org/project/sclblpy/)) to *automatically* compile machine learning models to WebAssembly, it is very well possible to create, upload, and use your own custom executable. In this tutorial we will create a WebAssembly executable using `c`, but you should be able to use any language that allows you to compile to WebAssembly (e.g., `rust`, `go`, `c++`). Deep knowledge of `c` is not required: throughout the tutorial we focus on the general principles that allow you to create an executable that you can upload on our platform, not on the language particularities.
 
@@ -15,6 +15,7 @@ In this tutorial we will cover the following steps:
 > **NOTE:** Throughout this tutorial we assume that you have access to a valid Scailable account (you can apply for a **beta** account at [https://admin.sclbl.net](https://admin.sclble.net/signup.html)). If you have no clue how to use Scailable in the first place, we recommend you first check out our [Scailable 101: Getting started](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started) tutorial.
 
 <a name="understanding"></a>
+
 # 1. Understanding the WASM runtime
 
 Before creating a `.wasm` executable and uploading it to Scailable to put it into production, it is important to understand how the Scailable *runtime* interacts with the `.wasm` *executable*. In this section we explain the interactions between the *runtime* and your `.wasm` *executable* that you need to understand to create your own *executable* from scratch. We effectively build on the WASI standards; read more about these [here](https://hacks.mozilla.org/2019/03/standardizing-wasi-a-webassembly-system-interface/).
@@ -27,7 +28,7 @@ Internally at Scailable we often think about the `.wasm` executables uploaded to
 
 1. The *runtime* needs to initialize (and check) the *executable*. 
 2. The *runtime* needs to send the input-data to the *executable*.
-3. The *runtime* needs to tell the *executable* to execute its functionality (i.e., to operate on the input-data)
+3. The *runtime* needs to call a function that is exported by the executable*  (to operate on the input-data)
 4. The *executable* needs to send the result back to the *runtime*.
 
 WebAssembly executables that are uploaded to Scailable need to [export](https://medium.com/front-end-weekly/webassembly-part-3-different-ways-to-call-the-exported-function-in-webassembly-194830bad873) the right functions to allow these four steps to be executed smoothly; we will detail each step and the functions involved in turn.
@@ -37,7 +38,7 @@ WebAssembly executables that are uploaded to Scailable need to [export](https://
 <a name="_start"></a>
 ### 1. Initializing the executable
 
-Since we are sticking to the current WASI standards (which are admittedly still a bit of a moving target), we assume that any `.wasm` executable that is uploaded to Scailable exports a function called `_start()`. The `_start()` function is the first function that is called when we initialize an executable. It can be used to initialize the task at hand, but in our tutorial it will simple return `c`'s `EXIT_SUCCESS`.
+Since we are sticking to the current WASI standards (which are admittedly still a bit of a moving target), we assume that any `.wasm` executable that is uploaded to Scailable exports a function called `_start()`. The `_start()` function is the first function that is called on initialization of an executable. The _start() function itself calls `C`'s default `main()` function. You can use `main()`to initialize your code. But in the current example, it simply returns`EXIT_SUCCESS`, as we will be interacting with the `.wasm` executable through some Scailable specific custom functions.
 
 > **NOTE:** In the remainder of this tutorial, as we will be using the [WASIENV](https://medium.com/wasmer/wasienv-wasi-development-workflow-for-humans-1811d9a50345) toolchain to compile our `c` code to `.wasm`. This toolchain ensures that the `_start()` function is automatically added to the created executable and that the `_start()` function itself automatically calls the `main()` function.
 
@@ -45,10 +46,10 @@ Since we are sticking to the current WASI standards (which are admittedly still 
 The beauty of WebAssembly is that the resulting executables are small, fast, and secure. One of the crucial aspects of this security is the fact that the interactions between the executable and the runtime are limited. Thus, interfacing and sending data between the runtime and the executable requires some care. In the Scailable platform we use a pretty low-level mechanism of sending data to our executables which is both flexible and fast:
 
 1. First, the *runtime* calls the function `malloc_buffer(int32_t length)` that is exported by the executable. The `length` argument indicates the length of the input data. This function should ensure that the executable allocates sufficient memory to store the input data and it should return (a pointer to) the location of the allocated memory.
-2. Next, the *runtime* will write the input to the memory that has been reserved by the *executable*. Thus, the input data is never passed as an argument to a function, but rather it is stored in a location in memory that is reserved by the *executable* such that the *executable* can retrieve it at will. 
+2. Next, the *runtime* will write the input to the memory that has been reserved by the *executable* in the previous step. Thus, the input data is not passed as an argument to a function, but rather stored in a location in memory that was reserved by the *executable* such that the *executable*  knows where the input-data lives and can retrieve it at will. 
 3. Once the *runtime* is done writing the input-data to the allocated memory buffer, it can now be accessed by the executable.
 
-In our platform, the input-data itself is provided in the "data" field of the REST call to Scailable. Thus, the following `cURL` call to a REST endpoint with id `9abcec1a-8f9e-11ea-b5eb-a4d18cd729d6` on our servers
+In our platform, the input-data itself is provided in JSON format within the "data" field of the REST call to Scailable. Thus, the following `cURL` call to a REST endpoint with id `9abcec1a-8f9e-11ea-b5eb-a4d18cd729d6` on our servers
 
 ```cURL
 curl 
@@ -102,7 +103,7 @@ The Scailable runtime will call these two functions in sequence and copy whateve
 
 where the JSON string `{"output": [15]}` in the `result` field is the string that was stored by the executable. Thus, this is the output-data.
 
-> **NOTE:** The `statusCode` highlights the status of the requested task. If `statusCode == 1` the task was executed and the rusults can be found in the `result` field. If `statusCode ==0 ` an error occured, and the `message` field will have a human readable explanation. If `statusCode == 5` the task took too long: in this case the resulting output-data can be downloaded from the `resultUrl` when it is done.
+> **NOTE:** The `statusCode` highlights the status of the requested task. If `statusCode == 1` the task was executed and the results can be found in the `result` field. If `statusCode ==0 ` an error occurred, and the `message` field will have a human readable explanation. If `statusCode == 5` the task took too long: in this case the resulting output-data can be downloaded from the `resultUrl` when it is done.
 
 ### Mandatory cleaning
 
@@ -113,12 +114,12 @@ While the above functionality completes running an executable on our runtime(s),
 
 So, we hope the above somewhat clarified the interactions between the Scailable runtime(s) and the `.wasm` executable that you might upload. To summarize, any executable uploaded to Scailable should export the following 6 functions:
 
-- `_start()` : Called to initialize the executable. Should return `EXIT_SUCCESS` and is by default inserted if you use [wasienv](https://github.com/wasienv/wasienv) for compilation.
-- `pred()` : Called to run the actual task. Should return `EXIT_SUCCESS`.
-- `malloc_buffer(length)` : Called to allocate memory for the input-data. Returns a pointer to the allocated memory.
-- `free_buffer(location)` : Called to free up the allocated memory.
-- `get_out_len()` : Called to retrieve the length of the output-data. Returns an integer.
-- `get_out_loc()` : Called to retrieve the location of the output-data. Returns a pointer.
+- `_start()` :  Exported automatically when you compile Webassembly as WASI. Initializes the executable, then calls `main()` - which is expected to return `EXIT_SUCCESS`on successful execution, and `EXIT_FAILURE` on failure.
+- `pred()` : Called to run the actual task.  Return `EXIT_SUCCESS`on successful execution, and `EXIT_FAILURE` on failure.
+- `malloc_buffer(length)` : Called to allocate memory for the input-data. Returns a pointer to the  start of the allocated  chunk of memory.
+- `free_buffer(location)` : Called to free up allocated memory again.
+- `get_out_len()` : Called to retrieve the length of the output-data. Returns an unsigned integer.
+- `get_out_loc()` : Called to retrieve the location of the output-data. Returns an unsigned integer that represents (points to) to the start position of the output string in `wasm`'s linear memory.
 
 <a name="compilation"></a>
 # 2. Compiling to WASM
@@ -162,10 +163,6 @@ In the remainder of this tutorial we will focus on the content of the last file,
 The top of the `sclblmain.c` file contains all the necessary initializations. It declare the EXPORT directive, includes the libraries that we use (including `sclblutil.h`), and defines the `main()` function:
 
 ```c
-/ IMPORTANT:
-// To export a function to WASM, make sure to set its function declaration's "used" attribute
-# define EXPORT __attribute__((used));
-
 // Include what we need (including our sclblutils)
 #include <stdint.h>
 #include <stdlib.h>
@@ -181,9 +178,9 @@ static int32_t out_len = 0;
 int main() {
     return EXIT_SUCCESS;
 }
-``` 
+```
 
-The critical thing for instantiation here is the definition of the `main` function which is called when the `_start()` function is called (which itself is, as we [explained earlier](#_start), not explicitly defined but rather added by the `wasicc` compilation process).
+The critical thing for instantiation here is the definition of the `main` function which is called when the `_start()` function is called (which itself is, as we [explained earlier](#_start), not explicitly defined but added when you compile WebAssembly according to default WASI specs).
 
 ### The input-data
 
@@ -192,14 +189,13 @@ Next, we declare and export the `malloc_buffer()` function which allows the runt
 ```c
 // malloc_buffer returns the location of the available memory of a specific 
 //  length that can be used by the runtime to write the input-data
-int32_t *malloc_buffer(int32_t length) EXPORT;
 int32_t *malloc_buffer(int32_t length) {
     in_loc = (int32_t *) malloc(length * sizeof(uint8_t));
     return in_loc;
 }
 ```
 
-Again, the runtime will call this function and write the input-data to the returned location. Note our explicit export of the `malloc_buffer` function using `int32_t *malloc_buffer(int32_t length) EXPORT;`. Finally, note that the `in_loc` is both returned to the runtime *and* stored by the executable.
+Again, the runtime will call this function and write the input-data to the returned location. Note that the `in_loc` is both returned to the runtime *and* stored by the executable.
 
 ### The actual functionality
 
@@ -207,8 +203,6 @@ As [detailed above](#pred), the runtime, after writing the input-data to the sha
 
 ```c
 // pred is the function that is called by the Scailable runtime to execute the actual functionality
-// Note that this function is actively exported using the EXPORT declaration.
-int pred() EXPORT;
 int pred() {
 
     // First, we retrieve input string at in_loc
@@ -263,20 +257,18 @@ int sum(const char *str) {
 }
 ```
 
-The function takes a string containing comma seperated integers, splits the string, converts the strings to int, and adds them. Clearly, this is no rocket science. However, please do note that after the `sum()` function is called by the `pred()` function, the resulting sum is stored in memory, *and* both the location (`out_loc`) and length (`out_len`) of the memory are stored. These are used to by the runtime to retrieve the output-data.
+The function takes a string containing comma separated integers, splits the string, converts the strings to int, and adds them. Clearly, this is no rocket science. However, please do note that after the `sum()` function is called by the `pred()` function, the resulting sum is stored in memory, *and* both the location (`out_loc`) and length (`out_len`) of the memory are stored. These are used to by the runtime to retrieve the output-data.
 
 ### Returning the output-data
 Again, as [explained above](#get_out_len), the runtime will ask the executable for the location and size of the output-data. This is implemented using two simple functions:
 
 ```c
 // get_out_len retrieves output-data length
-int32_t get_out_len() EXPORT;
 int32_t get_out_len() {
     return out_len;
 }
 
 // get_out_loc retrieves (a pointer to) the location of the output-data
-int32_t *get_out_loc() EXPORT;
 int32_t *get_out_loc() {
     return out_loc;
 }
@@ -290,7 +282,6 @@ Finally, the `free_buffer()` function allows the runtime to free up the memory:
 
 ```c
 // free_buffer frees the allocated input and output memory
-void free_buffer(int32_t *p) EXPORT;
 void free_buffer(int32_t *p) {
     free(p);
     p = NULL;
@@ -307,9 +298,11 @@ At this point we are pretty much done writing our `c` code; so, let's look at th
 Using the [wasienv](https://medium.com/wasmer/wasienv-wasi-development-workflow-for-humans-1811d9a50345) toolchain the actual compilation of our wasm executable is simple. Running the command 
 
 ```
-$ wasicc sclblmain.c sclblutil.c -w -O3 -fno-exceptions -o sclbl-intsum.wasm
+$ wasicc sclblmain.c sclblutil.c -w -O3 -fno-exceptions -o sclbl-intsum.wasm \
+         -Wl,--export=pred,--export=malloc_buffer,--export=free_buffer,\
+         --export=get_out_len,--export=get_out_loc 
 ```
-uses the provided toolchain to compile. We use a number of arguments: first, we specify the input files (`sclblmain.c` and `sclblutil.c`). Next, the `-w` flag disables all diagnostics, and the `-03` flag selects the compilers optimization type. The `fno-exceptions` argument instructs the compiler to ditch all exceptions as these are not supported in WebAssembly, and finally the `-o sclbl-intsum.wasm` argument specifies the name of the resulting executable. On my machine this looks like this:
+uses the provided toolchain to compile. We use a number of arguments: first, we specify the input files (`sclblmain.c` and `sclblutil.c`). Next, the `-w` flag disables all diagnostics, and the `-03` flag selects the compilers optimization type. The `fno-exceptions` argument instructs the compiler to ditch all exceptions as these are not supported in WebAssembly, and finally the `-o sclbl-intsum.wasm` argument specifies the name of the resulting executable. Finally, we explicitly export our custom functions. If we do not export them, they will be optimized away by your compiler. On my machine this looks like this:
 
 ![wasm compile](resources/images/wasicc-compile.png "wasm compile")
 
