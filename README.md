@@ -22,3 +22,5 @@ Next to the tutorials presented in this repository, we also have a number of int
 Thanks for your attention! Let us know if you have any suggestions please let us know by [creatinging a new issue](https://github.com/scailable/sclbl-tutorials/issues/new) or emailing us at [go at scailable dot net](mailto:go@scailable.net).
 
 If you find any mistakes in our tutorials, please do [add an issue](https://github.com/scailable/sclbl-tutorials/issues/new) so we can fix it asap!
+
+You can find the terms & conditions that apply to our beta program [here](https://github.com/scailable/sclbl-tutorials/blob/master/terms/README.md).
