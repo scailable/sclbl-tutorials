@@ -1,6 +1,6 @@
 # Scailable **BETA** terms
 
-> 02-06-2020, by the Scailable core team. 
+> 02-06-2020, by the Scailable core team. These terms and conditions are also availabe in [pdf](https://github.com/scailable/sclbl-tutorials/blob/master/terms/sclbl-beta-terms-02062020.pdf) format.
 
 In this document, we describe the agreement we (Scailable BV) and you (the user of our product and services) enter into when you enroll in our **beta** program; when you sign up for a Scailable beta account, you accept the applicability of the terms and conditions described in this document. We first describe [our product](#product) in more detail to introduce all the terms necessary to specify our agreement. Next, we describe both [our responsibilities](#our-commitment) in this agreement (and the limits thereof), and [yours](#your-commitment). Finally, we discuss the role of [your *balance*](#balance) in our agreement, and we discuss potential [termination](#termination) of this agreement. 
 
