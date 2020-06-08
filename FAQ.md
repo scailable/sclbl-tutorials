@@ -37,7 +37,7 @@ We split our FAQ up into a few parts:
   2. <b>Can I upload any `.wasm` binary to Scailable?</b> Well, yes, but most will not work so we would argue against that. If you want us to host your binary, it should [expose the right functions](https://github.com/scailable/sclbl-tutorials/blob/master/sclbl-create-your-own-wasm/README.md#exported_functions).
   3. <b>Is a `.wasm` binary secure?</b> [Yes](https://webassembly.org/docs/security/). 
   4. <b>I want to learn more about WASI / WASM, where should I go?</b> Follow [Lin Clark](https://twitter.com/linclark). Check what the nice people at [wasmer](https://wasmer.io) are up to, and [follow the WebAssembly community](https://www.w3.org/community/webassembly/). Obviously, [follow us](https://twitter.com/scailable) and keep updated by [watching this repo](https://github.com/scailable/sclbl-tutorials).
-  4. <b>Can I upload my binaries programmatically?</b> Yes you can. Please see our [API docs](https://docs.sclbl.net) for details.
+  5. <b>Can I upload my binaries programmatically?</b> Yes you can. Please see our [API docs](https://docs.sclbl.net) for details.
 
 <a name="edge"></a>
 ## Running models on the edge
