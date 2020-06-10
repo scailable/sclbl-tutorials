@@ -24,7 +24,7 @@ To use [Scailable](https://www.scailable.net) you will need a scailable **beta**
 
 ![Log in to scailable](resources/images/1-login.png "Log in to Scailable")
 
-Admittedly, this is actually the page where you would *log in* if you have an account already. So, click on "here" in the sentence *"No account yet? Create one here."* Doing so gets you to [https://admin.sclbl.net/signup.html](https://admin.sclbl.net/signup.html) which looks like this:
+Admittedly, this is actually the page where you would *log in* if you have an account already. So, click on "here" in the sentence *"No account yet? Create one here."* Doing so gets you to [https://admin.sclbl.net/signup.html](https://admin.sclbl.net/signup.html) which, after scrolling down, looks like this:
 
 ![Sign up for scailable](resources/images/1-signup.png "Sign up")
 
