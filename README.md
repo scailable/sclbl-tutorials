@@ -13,19 +13,19 @@ If you do not yet have a Scailable account, sign up at [www.scailable.net](https
 ## Interactive demos
 Next to the tutorials presented in this repository, we also have a number of interactive demos:
 
-1. [Predicting a developers salary](https://www.scailable.net/demo/salary). Based on the most recent [Stack Overflow](https://insights.stackoverflow.com/survey/2019) survey, we created a simple model to predict the yearly salary of developers; give it [a spin](https://www.scailable.net/demo/salary/)! This simple front-end supports our getting started tutorial: [Scailable 101: Getting started](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started).
-2. [Scailable supports running complex models](https://www.scailable.net/demo/avm/) (such at [Bayesian Additive Regression Trees](https://projecteuclid.org/euclid.aoas/1273584455)) in the cloud, on the edge, or on a browser. Check how we can flexibly generate posterior predictive inferences for automatic property valuation models, anytime, anywhere.
-3. [Sometimes what you need is performance](https://www.scailable.net/demo/bench/). We provide nothing less. The inferences from our models are extremely fast; check out some of our benchmarks.
+* [Predicting a developers salary](https://www.scailable.net/demo/salary). Based on the most recent [Stack Overflow](https://insights.stackoverflow.com/survey/2019) survey, we created a simple model to predict the yearly salary of developers; give it [a spin](https://www.scailable.net/demo/salary/)! This simple front-end supports our getting started tutorial: [Scailable 101: Getting started](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started).
+* [Scailable supports running complex models](https://www.scailable.net/demo/avm/) (such at [Bayesian Additive Regression Trees](https://projecteuclid.org/euclid.aoas/1273584455)) in the cloud, on the edge, or on a browser. Check how we can flexibly generate posterior predictive inferences for automatic property valuation models, anytime, anywhere.
+* [Sometimes what you need is performance](https://www.scailable.net/demo/bench/). We provide nothing less. The inferences from our models are extremely fast; check out some of our benchmarks.
 
 ## Videos:
 Some sample video's of the use of Scailable:
 
-1. [Introducing the Scailable platform](https://youtu.be/47wUrjtgFcs). A simple video showcasing the basic functionalities of the Scailable platform.
+* [Introducing the Scailable platform](https://youtu.be/47wUrjtgFcs). A simple video showcasing the basic functionalities of the Scailable platform.
 
 ## Posts:
 And, some posts / articles:
 
-1. [Stop training more models, start deploying them](https://towardsdatascience.com/stop-training-more-models-start-deploying-them-using-webassembly-49a3f178569e). An article detailing the challenges when deploying models in healthcare.
+* [Stop training more models, start deploying them](https://towardsdatascience.com/stop-training-more-models-start-deploying-them-using-webassembly-49a3f178569e). An article detailing the challenges when deploying models in healthcare.
 
 
 ----------
