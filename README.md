@@ -1,5 +1,5 @@
 # Scailable tutorials & FAQ
-> Last updated 16-06-2020.
+> Last updated 20-06-2020.
 
 In this public repository we gather tutorials, frequently asked questions, and showcases. If you are encountering any problems using our services or have suggestions for improvements, please do let us know by [creating a new issue](https://github.com/scailable/sclbl-tutorials/issues/new). 
 
