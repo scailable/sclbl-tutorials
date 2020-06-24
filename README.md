@@ -5,6 +5,12 @@ In this public repository we gather tutorials, frequently asked questions, and s
 
 If you do not yet have a Scailable account, sign up at [www.scailable.net](https://www.scailable.net).
 
+- [Tutorials](https://github.com/scailable/sclbl-tutorials#tutorials)
+- [Interactive demos](https://github.com/scailable/sclbl-tutorials#interactive-demos)
+- [Videos](https://github.com/scailable/sclbl-tutorials#videos)
+- [Posts](https://github.com/scailable/sclbl-tutorials#posts)
+- [Data Values and Principles](https://github.com/scailable/sclbl-tutorials#data-values-and-principles)
+
 ## Tutorials
 
 * [sclbl-101-getting-started](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started): A step-by-step explanation of the use of Scailable. This tutorial shows how to sign up for a *beta* account, and how to create a first Scailable endpoint using the `sclblpy` package. 
@@ -27,7 +33,7 @@ Some posts / articles:
 * [Stop training more models, start deploying them](https://towardsdatascience.com/stop-training-more-models-start-deploying-them-using-webassembly-49a3f178569e). An article detailing the challenges when deploying models in healthcare.
 * [From model fitting to production in seconds](https://towardsdatascience.com/from-model-fitting-to-production-in-seconds-8e6823d87f5d). The shortage usage example of Scailable we were able to write.
 
-### Data Values and Principles:
+## Data Values and Principles:
 
 Scailable is committed to the advancement of AI driven by ethical principles that put people first. To further clarify this position, we make our "Ethical Data Science Manifesto" (building on from the Linux Foundation' s "[Data Values and Principles](https://datapractices.org/manifesto/)") available [here](https://github.com/scailable/sclbl-tutorials/blob/master/RESPONSIBLE-AI-MANIFESTO.md). As we acknowledge that this area is dynamic and evolving, we expect to adapt, update and further develop the manifesto as we as we learn over time. 
 
