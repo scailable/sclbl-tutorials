@@ -22,10 +22,18 @@ Some sample video's of the use of Scailable:
 * [Introducing the Scailable platform](https://youtu.be/47wUrjtgFcs). A simple video showcasing the basic functionalities of the Scailable platform.
 
 ## Posts:
-And, some posts / articles:
+Some posts / articles:
 
 * [Stop training more models, start deploying them](https://towardsdatascience.com/stop-training-more-models-start-deploying-them-using-webassembly-49a3f178569e). An article detailing the challenges when deploying models in healthcare.
 * [From model fitting to production in seconds](https://towardsdatascience.com/from-model-fitting-to-production-in-seconds-8e6823d87f5d). The shortage usage example of Scailable we were able to write.
+
+### Data Values and Principles:
+
+Scailable is committed to the advancement of AI driven by ethical principles that put people first. To further clarify this position, we will be developing a manifesto starting from the principles made available here. As we acknowledge that this area is dynamic and evolving, we expect to adapt, update and further develop the manifesto as we as we learn over time. 
+
+We also invite our users to check their project(s) against *[deon](https://deon.drivendata.org/)*, an open source command line tool that allows you to easily add an ethics checklist to your data science projects.
+
+
 
 ----------
 
