@@ -29,7 +29,7 @@ Some posts / articles:
 
 ### Data Values and Principles:
 
-Scailable is committed to the advancement of AI driven by ethical principles that put people first. To further clarify this position, we will be developing a manifesto starting from the principles made available here. As we acknowledge that this area is dynamic and evolving, we expect to adapt, update and further develop the manifesto as we as we learn over time. 
+Scailable is committed to the advancement of AI driven by ethical principles that put people first. To further clarify this position, we make our "Ethical Data Science Manifesto" (building on from the Linux Foundation' s "[Data Values and Principles](https://datapractices.org/manifesto/)") available [here](https://github.com/scailable/sclbl-tutorials/blob/master/RESPONSIBLE-AI-MANIFESTO.md). As we acknowledge that this area is dynamic and evolving, we expect to adapt, update and further develop the manifesto as we as we learn over time. 
 
 We also invite our users to check their project(s) against *[deon](https://deon.drivendata.org/)*, an open source command line tool that allows you to easily add an ethics checklist to your data science projects.
 
