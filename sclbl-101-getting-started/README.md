@@ -149,6 +149,9 @@ docs['documentation'] = """#Linear regression demonstration.
 And now, we are ready to use the `sclblpy` package to deploy the model:
 
 ```python
+# Import the package
+import sclblpy as sp
+
 # Upload the model to transpile to WASM and make available
 sp.upload(lm, fv, docs=docs)
 ```
