@@ -1,0 +1,65 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Consuming a Scailable Task</title>
+</head>
+
+<body>
+
+	<h1>Consuming the integer sum task</h1>
+	<p>A demo page supporting the <a href="">using the Scailable Webnode tutorial</a>.</p>
+		
+	<table>
+		<!-- Input -->
+		<tr>
+			<td>Input:</td>
+			<td> <input type="text" name="integers" value="1,2,3,4,5" id="input-integers"></td>
+		</tr>
+		<!-- Button -->
+		<tr>
+			<td></td>
+			<td><button type="button" id="button-integers">Compute sum!</button></td>
+		</tr>
+		<!-- Result -->
+		<tr>
+			<td>Result:</td>
+			<td><div id="output-integers"></div></td>
+		</tr>
+	</table>
+
+	<!-- include the sclbl-webnode -->
+	<script src="sclbl-webnode-min.js"></script>
+
+	<!-- some custom javascript to set properties and handle events -->
+	<script>
+
+		// Set task uptions:
+		sclblRuntime.options({
+			"cfid": "e93d0176-90f8-11ea-b602-9600004e79cc", 
+		});
+
+		// When button is pushed:
+		document.getElementById("button-integers").onclick = function(){
+
+			// reset the result div value:
+			document.getElementById("output-integers").innerHTML = "";
+
+			// get the inputData:
+			let inputData = document.getElementById("input-integers").value;
+
+			// Run the task:
+			sclblRuntime.run(inputData).then(function(response) {
+				// result:
+				document.getElementById("output-integers").innerHTML = response;
+			}, function(error) {
+				// or error:
+				document.getElementById("output-integers").innerHTML = "An error occurred (see console for more details): " + error;
+			});
+
+		}
+
+	</script>
+
+  
+</body>
+</html>
