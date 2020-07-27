@@ -7,7 +7,7 @@ In this tutorial we will cover the following steps:
 
 1. [Preparing your pretrained PyTorch model](#PyTorch). First, we prepare a pretrained PyTorch model for conversion to ONNX.
 2. [Converting the PyTorch model to ONNX](#ONNX). Next, we run the actual conversion of the PyTorch model to ONNX, clean the ONNX up, and check whether its predictions still conform to the original PyTorch model.
-4. [ONNX model to Scailable task](Scailable). Finally, we demonstrate how to upload the ResNet ONNX model to Scailable and how to run the resulting Scailable task directly on our servers (or in your browser).
+4. [ONNX model to Scailable task](#Scailable). Finally, we demonstrate how to upload the ResNet ONNX model to Scailable and how to run the resulting Scailable task directly on our servers (or in your browser).
 
 Note: The full Python source code of the current tutorial can be found in the [sources](sources) subdirectory, whereas the pretrained model's weights and CIFAR example images can be found in this tutorial's [resources](resources) subdirectory.
 
@@ -419,13 +419,11 @@ To make it easy to incorporate our RESTful endpoints in your own code, you can n
 </p>
 
 
-
-
 Or in your Linux terminal, using cURL:
 
 <img src="images/curl.png" alt="curl" style="zoom:67%;" />
 
-The same goes for any programming language, really. And if you don't want to run the WebAssembly server-side, we've got you covered! Run your model client-side or on the edge - for example, in a browser using our [JavaScript webnode](https://github.com/scailable/sclbl-webnode)!
+The same goes for any programming language, really. And if you don't want to run your Scailable WebAssembly model server-side, we've got you covered! Run your model client-side or on the edge - for example, in a browser using our [JavaScript webnode](https://github.com/scailable/sclbl-webnode).
 
 --------
 
