@@ -22,7 +22,7 @@ The actual `.WASM` used can be downloaded [here](https://cdn.sclbl.net:8000/file
 
 > <b>Note:</b> The compute function ID, or simply `cfid` of this task is `e93d0176-90f8-11ea-b602-9600004e79cc`; we will need this `cfid` when consuming the task from our webpage.
 
-<a name="setup"></a>
+<a name="include"></a>
 ## 2. Including the sclbl-webnode library
 
 The aim of this tutorial is to show how the integer sum task can be used on any website, both locally (i.e., running in the browser itself) and remotely (i.e., by making a REST call to Scailable servers where the task is hosted). After we have selected a task we need to build a simple `html` page that will be consuming our task; we will keep it as simple as possible. The following `html` shows a simple page with an input field (where the user can input the list of integers to be summed), a button, and a `div` element that can disply the results of the task.
@@ -119,6 +119,7 @@ That's all we need to consume the Scailable task in the browser!
 
 > <b>Note:</b> The call to `sclblRuntime.run()` is asynchronous.
 
+<a name="wrapup"></a>
 ## Wrap up.
 
 The complete `.html` page needed to run the task looks like this:
@@ -191,7 +192,7 @@ The complete `.html` page needed to run the task looks like this:
 </html>
 
 ```
-and you can find the source [here]().
+and you can find the source [here](resources/demo).
 
 On my end, the page looks like this:
 
