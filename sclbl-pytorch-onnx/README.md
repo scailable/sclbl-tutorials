@@ -6,7 +6,7 @@ In this tutorial we demonstrate how to convert a [PyTorch](https://pytorch.org/)
 In this tutorial we will cover the following steps:
 
 1. [Preparing your pretrained PyTorch model](#PyTorch). First, we prepare a pretrained PyTorch model for conversion to ONNX.
-2. [Converting the PyTorch model to ONNX](#ONNX). Next, we run the actual conversion of the PyTorch model to ONNX, clean the ONNX up, and check whether its predictions still conform to the original PyTorch model.
+2. [Converting the PyTorch model to ONNX](#ONNX). Next, we run the actual conversion of the PyTorch model to ONNX, clean the ONNX, and check whether its predictions still conform to the original PyTorch model.
 4. [ONNX model to Scailable task](#Scailable). Finally, we demonstrate how to upload the ResNet ONNX model to Scailable and how to run the resulting Scailable task directly on our servers (or in your browser).
 
 Note: The full Python source code of the current tutorial can be found in the [sources](sources) subdirectory, whereas the pretrained model's weights and CIFAR example images can be found in this tutorial's [resources](resources) subdirectory.
@@ -25,21 +25,9 @@ In the figure below, an overview of the classes in the dataset, together with 10
 
 We converted a subset of 100 (10 of each class) of the images into 32x32 PNG format. These converted images are available in the [resources/cifar](resources/cifar) subdirectory of the root PyTorch tutorial directory.
 
-### B. CIFAR classes 
+### B. Define the ResNet pretrained model
 
-To make it easier to compare the predicted category index to the correct label, we now order the classes in a Python tuple:
-
-```python
-classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-```
-
-### C. Define the ResNet pretrained model
-
-The pretrained ResNet 20-layer model we will be converting in the current tutorial [was kindly made available on GitHub](https://github.com/chenyaofo/CIFAR-pretrained-models) by [Chenyaofo](https://github.com/chenyaofo). The accuracy of the relatively small (about 1 MB) 20-layer model is impressive:
-
-| Model    | Acc@1(C10) | Acc@5(C10) | Acc@1(C100) | Acc@5(C100) | #param. | FLOPs  |
-| -------- | ---------- | ---------- | ----------- | ----------- | ------- | ------ |
-| Resnet20 | 91.65      | 99.68      | 66.61       | 89.95       | 0.27M   | 40.81M |
+The pretrained ResNet 20-layer model we will be converting in the current tutorial [was kindly made available on GitHub](https://github.com/chenyaofo/CIFAR-pretrained-models) by [Chenyaofo](https://github.com/chenyaofo). 
 
 The PyTorch ResNet model consists of two parts, the model weights, which are available in our tutorial's resources/weights directory, and the model definition. The latter reads as follows:
 
@@ -151,27 +139,29 @@ class CifarResNet(nn.Module):
 model = CifarResNet(BasicBlock, [3, 3, 3], num_classes=10)
 ```
 
-### D. Merge model and weights
+### C. Merge model and weights
 
-Now that we have defined the model's structure, we can load the pretrained weights, merge them with the model, and freeze it:
+Now that we have defined the model's structure, we can load the pretrained weights, merge them with the model, and turn training mode off / evaluation mode on.
 
 ```python
 # Load the weights from a file (.pth usually)
 state_dict = torch.load('../resources/weights/cifar10-resnet20.pth')
 model.load_state_dict(state_dict, strict=False)
 
-# set the train mode to false since we will only run the forward pass.
-model.train(False)
+# Evaluation mode on, training mode off. Needed because layers such as dropout and batchnorm behave differently in train and test procedures.
 model.eval()
 ```
 
-### E. Optional: Run a prediction with the frozen PyTorch model
+### D. Optional: Run a prediction with the fitted PyTorch model
 
-Lets check if the frozen pretrained model is indeed able to recognize random CIFAR images. To do so, we first need to define some helper functions that preprocesses the images in exactly the same way as during the original training:
+Lets check if the pretrained model is indeed able to recognize random CIFAR images. To do so, we first need to define some helper functions that preprocesses the images in exactly the same way as during the original training:
 
 ```python
 from PIL import Image
 import numpy as np
+
+# Class labels for CIFAR classes 0 to 9
+classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 # Process the image
 def process_image(image_path):
@@ -245,7 +235,7 @@ On running the code, the PyTorch model successfully predicts a horse - yay!
 <a name="ONNX"></a>
 
 # 2. PyTorch to ONNX
-Where the previous section offered a basic overview of generic PyTorch modeling, the current section demonstrates how to convert any PyTorch model to the open ONNX format. To quote [ONNX.ai](https://onnx.ai/):
+The current section demonstrates how to convert any PyTorch model to the open ONNX format. To quote [ONNX.ai](https://onnx.ai/):
 
 > **ONNX is an open format built to represent machine learning models.** ONNX defines a common set of operators - the building blocks of machine learning and deep learning models - and a common file format to enable AI developers to use models with a variety of frameworks, tools, runtimes, and compilers.
 >
@@ -255,21 +245,18 @@ Since Scailable offers out-of-the-box [ONNX](https://onnx.ai/) to [WebAssembly](
 
 ### A. Main PyTorch to ONNX conversion
 
-The frozen [ResNet](https://en.wikipedia.org/wiki/Residual_neural_network) model of the previous section is all set to be converted to ONNX. Which just takes the two following lines of code:
+The fitted [ResNet](https://en.wikipedia.org/wiki/Residual_neural_network) model of the previous section is all set to be converted to ONNX. ONNX export from Pytorch is done by tracing the graph; that is, it executes the graph once with an example or dummy input it's given. While executing the graph, it keeps track of PyTorch operations executed and then converts each of those operations to ONNX format. 
 
 ```python
-# generate dummy image
-x = torch.randn(1, 3, 32, 32, dtype=torch.float32)
-
 # export the model
 torch.onnx.export(model,                     # pytorch model
-                  x,                         # dummy input
+                  image,                     # example or dummy input
                   "cifar10-resnet20.onnx",   # name of onnx file                 
-                  export_params=True,        # store the trained parameter weights inside the model file
+                  export_params=True,        # store trained parameter weights inside the model file
                   opset_version=7,           # the ONNX version to export the model to
                   do_constant_folding=True,  # whether to execute constant folding for optimization
-                  input_names = ['input'],   # the model's input node name - "input" is generally the safest choice
-                  output_names = ['output']) # the model's output node name - "output" is generally the safest choice
+                  input_names = ['input'],   # the model's input node name; "input" is the safest choice
+                  output_names = ['output']) # the model's output node name; "output" is the safest choice
 ```
 
 ### B. Cleaning up
@@ -286,7 +273,9 @@ from onnxsim import simplify
 model_path     = './cifar10-resnet20.onnx'
 optimized_model = onnx.load(model_path)
 
-# set ONNX version and ONNX ir_version correctly  
+# set ONNX version and ONNX ir_version.
+# scailable currently supports ONNX version <= 1.3,
+# with ONNX IR version <= 3 and ONNX Operator Set <= 8
 optimized_model = version_converter.convert_version(optimized_model, 7) 
 optimized_model.ir_version = 3
 
@@ -320,7 +309,7 @@ onnxrt_outs = onnx_model.run(None, onnxrt_inputs)
 print(onnxrt_outs[0])
 
 # Print the prediction
-print("The PyTorch model predicts the image is a", classes[np.argmax(onnxrt_outs[0])] + ".")
+print("The ONNX model predicts the image is a", classes[np.argmax(onnxrt_outs[0])] + ".")
 ```
 
 Let's run the code, and see what the ONNX model predicts:
@@ -344,9 +333,33 @@ With a value of 20.078842, our model picks "horse" again - looking good! We are 
 
 Once you have followed the guidelines above and have generated a standards compliant ONNX v1.3 model, you can now just upload the resulting ONNX file on our website and send it an input image through, for instance, our RESTful interface. 
 
-### A. ONNX model input format
+### A. Upload ONNX model
 
-There is, however, one important caveat: The input image needs to be base64 encoded ONNX ProtoBuf formatted. In Python that entails converting (for instance) our **horse5.png** image to a base64 encoded ProtoBuf string by running:
+Now that you have both a suitable ONNX file you can generate a Scailable WebAssembly binary by logging in to the Scailable admin interface at [admin.sclbl.net](https://admin.sclbl.net/), selecting the [upload](https://admin.sclbl.net/upload.html,) tab, choosing "ONNX" type file upload, filling out all relevant fields, and clicking the `UPLOAD .ONNX` button:
+
+
+
+<img src="images/upload.png" alt="upload" style="zoom:67%;" />
+
+On filling out the form and clicking the big blue button, [admin.sclbl.net](https://admin.sclbl.net/) will report that the ONNX file has been uploaded successfully:
+
+<img src="images/complete.png" alt="complete" style="zoom:67%;" />
+
+When the Scailable ONNX toolchain has completed the conversion of ONNX to WebAssembly, you will receive an e-mail with a link to the demo page:
+
+<p align="center">
+<img src="images/mail.png" alt="mail"  />
+</p>
+
+
+
+Your Compute Function is now available in your list of "Available Endpoints" in your Scailable account:
+
+<img src="images/endponts.png" alt="endponts" style="zoom:67%;" />
+
+### B. Generate an input string
+
+Let's take our newly converted Scailable task for a spin! To do so, we first need to generate an input string. Here, we convert our **horse5.png** image to a base64 encoded ProtoBuf string by running:
 
 ```python
 from onnx import numpy_helper
@@ -368,39 +381,15 @@ print(str(base64_input, "ascii"))
 CAEIAwggCCAQAUqAYKtw7T+eoNQ/V+2sP0odlD ... bKTP+Uxlj+GMJs/1q+dPyYvoD92rqI/dq6iP3auoj82sZg/F62nPw==
 ```
 
-The full base64 example string based on the **horse5.png** image can be found as [resnet.cifar.model.base64.txt](resources/base64/resnet.cifar.model.base64.txt) in this example's [resources/base64](resources/base64) subdirectory.
+The full base64 example string based on the **horse5.png** image is available in the [resnet.cifar.model.base64.txt](resources/base64/resnet.cifar.model.base64.txt) file in the [resources/base64](resources/base64) subdirectory.
 
-### B. Upload ONNX model
+### C. Run a prediction using the Scailable compute task
 
-Now that you have both a suitable ONNX file and an example input string, you can generate a Scailable WebAssembly binary by logging in to the Scailable admin interface at [admin.sclbl.net](https://admin.sclbl.net/), selecting the [upload](https://admin.sclbl.net/upload.html,) tab, choosing "ONNX" type file upload, filling out all relevant fields (optionally pasting the base64 encoded example string into the Example Input field), and clicking the `UPLOAD .ONNX` button:
-
-
-
-<img src="images/upload.png" alt="upload" style="zoom:67%;" />
-
-On filling out the form and clicking the `UPLOAD .ONNX` , the admin.sclbl.net will report that the ONNX file has been uploaded successfully:
-
-<img src="images/complete.png" alt="complete" style="zoom:67%;" />
-
-When the Scailable ONNX toolchain has completed the conversion of ONNX to WebAssembly, you will receive an e-mail with a link to the demo page:
-
-<p align="center">
-<img src="images/mail.png" alt="mail"  />
-</p>
-
-
-
-Your Compute Function is now available in your list of "Available Endpoints" in your Scailable account:
-
-<img src="images/endponts.png" alt="endponts" style="zoom:67%;" />
-
-
-
-On selecting the endpoint, you can take the converted model for a test run:
+On selecting the endpoint, you can now copy and paste this string into the "Input to the task" field, click the blue "RUN" button, and check the resulting output:
 
 <img src="images/try.png" alt="try" style="zoom:67%;" />
 
-Super! The resulting prediction equals the original output of the PyTorch model in **1.E**:
+Super! The prediction equals the original output of the PyTorch model in **1.E**:
 
 ```cmd
 {"output": [-6.3170, 0.4025, -3.2693, -2.8926, 6.9177, -2.1800, -4.8414, 20.0788, -5.9166, -1.9814]}

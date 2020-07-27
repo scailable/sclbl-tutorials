@@ -1,7 +1,3 @@
-### 0.  Define CIFAR classes
-
-classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
 ### 1.  PyTorch model definition
 
 import torch.nn as nn
@@ -113,8 +109,9 @@ import torch
 state_dict = torch.load('../resources/weights/cifar10-resnet20.pth')
 model.load_state_dict(state_dict, strict=False)
 
-# set the train mode to false since we will only run the forward pass.
-model.train(False)
+# Evaluation mode on, training mode off. 
+# Necessary since layers such as dropout and batchnorm 
+# behave differently during training versus evaluation phases.
 model.eval()
 
 
@@ -125,6 +122,9 @@ model.eval()
 
 from PIL import Image
 import numpy as np
+
+# Class labels for CIFAR classes 0 to 9
+classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 # Process the image
 def process_image(image_path):
@@ -187,12 +187,9 @@ print("The PyTorch model predicts the image is a", classes[top_class] + ".")
 
 ### 4a. Convert PyTorch to ONNX
 
-# generate dummy image
-x = torch.randn(1, 3, 32, 32, dtype=torch.float32)
-
 # export the model
 torch.onnx.export(model,                     # pytorch model
-                  x,                         # dummy input
+                  image,                     # example or dummy input
                   "cifar10-resnet20.onnx",   # name of onnx file                 
                   export_params=True,        # store the trained parameter weights inside the model file
                   opset_version=7,           # the ONNX version to export the model to
@@ -212,7 +209,9 @@ from onnxsim import simplify
 model_path     = './cifar10-resnet20.onnx'
 optimized_model = onnx.load(model_path)
 
-# set ONNX version and ONNX ir_version correctly  
+# set ONNX version and ONNX ir_version.
+# scailable currently supports ONNX version <= 1.3,
+# with ONNX IR version <= 3 and ONNX Operator Set <= 8
 optimized_model = version_converter.convert_version(optimized_model, 7) 
 optimized_model.ir_version = 3
 
@@ -243,7 +242,7 @@ onnxrt_outs = onnx_model.run(None, onnxrt_inputs)
 print(onnxrt_outs[0])
 
 # Print the prediction
-print("The PyTorch model predicts the image is a", classes[np.argmax(onnxrt_outs[0])] + ".")
+print("The ONNX model predicts the image is a", classes[np.argmax(onnxrt_outs[0])] + ".")
 
 
 
