@@ -9,7 +9,7 @@ In this tutorial we will cover the following steps:
 2. [Converting the PyTorch model to ONNX](#ONNX). Next, we run the actual conversion of the PyTorch model to ONNX, clean the ONNX up, and check whether its predictions still conform to the original PyTorch model.
 4. [ONNX model to Scailable task](Scailable). Finally, we demonstrate how to upload the ResNet ONNX model to Scailable and how to run the resulting Scailable task directly on our servers (or in your browser).
 
-Note: The full Python source code of the current tutorial can be found in the "sources" subdirectory, whereas the pretrained model's weights and CIFAR example images can be found in this tutorial's "resources" subdirectory.
+Note: The full Python source code of the current tutorial can be found in the [sources](sources) subdirectory, whereas the pretrained model's weights and CIFAR example images can be found in this tutorial's [resources](resources) subdirectory.
 
 <a name="PyTorch"></a>
 
@@ -23,7 +23,7 @@ In the figure below, an overview of the classes in the dataset, together with 10
 
 <img src="images/cifar.png" alt="cifar" style="zoom: 50%;" />
 
-We converted a subset of 100 (10 of each class) of the images into 32x32 PNG format. These converted images are available in the resource/cifar subdirectory of the root PyTorch tutorial directory.
+We converted a subset of 100 (10 of each class) of the images into 32x32 PNG format. These converted images are available in the [resources/cifar](resources/cifar) subdirectory of the root PyTorch tutorial directory.
 
 ### B. CIFAR classes 
 
@@ -368,7 +368,7 @@ print(str(base64_input, "ascii"))
 CAEIAwggCCAQAUqAYKtw7T+eoNQ/V+2sP0odlD ... bKTP+Uxlj+GMJs/1q+dPyYvoD92rqI/dq6iP3auoj82sZg/F62nPw==
 ```
 
-The full base64 example string based on the **horse5.png** image can be found as `resnet.cifar.model.base64.txt` in this example's *base64* subdirectory.
+The full base64 example string based on the **horse5.png** image can be found as [resnet.cifar.model.base64.txt](resources/base64/resnet.cifar.model.base64.txt) in this example's [resources/base64](resources/base64) subdirectory.
 
 ### B. Upload ONNX model
 
@@ -425,7 +425,7 @@ Or in your Linux terminal, using cURL:
 
 <img src="images/curl.png" alt="curl" style="zoom:67%;" />
 
-The same goes for any programming language, really. And if you don't want to run the WebAssembly on your server, we've got you covered! Run your model on the edge - for example, in a browser using our [JavaScript webnode](https://github.com/scailable/sclbl-webnode)!
+The same goes for any programming language, really. And if you don't want to run the WebAssembly server-side, we've got you covered! Run your model client-side or on the edge - for example, in a browser using our [JavaScript webnode](https://github.com/scailable/sclbl-webnode)!
 
 --------
 
