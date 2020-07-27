@@ -218,7 +218,9 @@ def predict(image, model):
 
 Now, we can check if the PyTorch model is able to predict, for example, the CIFAR **horse5.png** image:
 
+<p align="center">
 <img src="resources/cifar/horse5.png" alt="horse5" style="zoom:200%;" />
+</p>
 
 ```python
 # Process Image 
@@ -330,7 +332,9 @@ Let's run the code, and see what the ONNX model predicts:
 > The PyTorch model predicts the image is a horse.
 ```
 
+<p align="center">
 <img src="resources/cifar/horse5.png" alt="horse5" style="zoom:200%;" />
+</p>
 
 With a value of 20.078842, our model picks "horse" again - looking good! We are now almost set to run the ResNet (ONNX) model on a Scailable node. The following section will explain how to get there.
 
@@ -380,8 +384,9 @@ On filling out the form and clicking the `UPLOAD .ONNX` , the admin.sclbl.net wi
 
 When the Scailable ONNX toolchain has completed the conversion of ONNX to WebAssembly, you will receive an e-mail with a link to the demo page:
 
-
+<p align="center">
 <img src="images/mail.png" alt="mail"  />
+</p>
 
 
 
@@ -403,13 +408,16 @@ Super! The resulting prediction equals the original output of the PyTorch model 
 
 So our WebAssembly binary agrees: the image is indeed a horse, of course!
 
+<p align="center">
 <img src="resources/cifar/horse5.png" alt="horse5" style="zoom:200%;" />
+</p>
 
 To make it easy to incorporate our RESTful endpoints in your own code, you can now copy and paste source code examples to consume this REST endpoint in a variety of programming languages. Try it! Just copy the JavaScript Fetch example code and paste it in your browser's JavaScript console:
 
+<p align="center">
+<img src="images/javascript.png" alt="complete" />
+</p>
 
-
-![javascript](images/javascript.png)
 
 
 
