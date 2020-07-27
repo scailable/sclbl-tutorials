@@ -261,7 +261,7 @@ torch.onnx.export(model,                     # pytorch model
 
 ### B. Cleaning up
 
-As a result of this code, you should now find an an `cifar10-resnet20.onnx` file in your working directory. However, the ONNX that the Torch package has generated is still a bit rough around the edges. So we clean it up using the following code:
+As a result of this code, you should now find an a `cifar10-resnet20.onnx` file in your working directory. However, the ONNX that the Torch package has generated is still a bit rough around the edges. So we clean it up using the following code:
 
 ```python
 import onnx
@@ -288,7 +288,7 @@ optimized_model = onnx.utils.polish_model(optimized_model)
 onnx.save(optimized_model, model_path)
 ```
 
-### C. Optional: Run a prediction using ONNX model
+### C. Optional: Run a prediction using the ONNX model
 
 Let's see what the ONNX inference engine predicts:
 
