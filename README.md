@@ -15,6 +15,7 @@ If you do not yet have a Scailable account, sign up at [www.scailable.net](https
 
 * [sclbl-101-getting-started](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-101-getting-started): A step-by-step explanation of the use of Scailable. This tutorial shows how to sign up for a *beta* account, and how to create a first Scailable endpoint using the `sclblpy` package. 
 * [sclbl-create-your-own-wasm](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-create-your-own-wasm): This tutorial shows how to create your own custom WebAssembly executable using `c` (and the [wasienv](https://medium.com/wasmer/wasienv-wasi-development-workflow-for-humans-1811d9a50345) toolchain) that can be deployed on the Scailable platform.
+* [sclbl-using-the-webnode](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-using-the-webnode): A tutorial that demonstrates how to run a Scailable WebAssembly task either in the browser or in our Scailable cloud - automatic fallback included!
 
 ## Interactive demos
 Next to the tutorials presented in this repository, we also have a number of interactive demos:
