@@ -1,7 +1,7 @@
 # Using the sclbl-WebNode
 > Last 27-07-2020; By the Scailable core team.
 
-This tutorial demonstrates the use of the [sclbl-WebNode]() to consume Scailable tasks on the web. The WebNode provides an open and minimal `JavaScript` implementation of a Scailable ComputeNode (i.e., a runtime for a Scailable WebAssembly task). The WebNode allows you to easily consume Scailable tasks on the web and allows you to control whether tasks are run either in the browser or on Scailable servers.
+This tutorial demonstrates the use of the [sclbl-WebNode](https://github.com/scailable/sclbl-webnode) to consume Scailable tasks on the web. The WebNode provides an open and minimal `JavaScript` implementation of a Scailable ComputeNode (i.e., a runtime for a Scailable WebAssembly task). The WebNode allows you to easily consume Scailable tasks on the web and allows you to control whether tasks are run either in the browser or on Scailable servers.
 
 In this tutorial we will cover:
 
