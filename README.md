@@ -21,9 +21,8 @@ If you do not yet have a Scailable account, sign up at [www.scailable.net](https
 ## Interactive demos
 Next to the tutorials presented in this repository, we also have a number of interactive demos:
 
-* [Object recognition on the edge!](https://www.scailable.net/demo/cifar/). This demo allows you to recognize object in images directly on the edge (i.e., in your browser). It shows how you can use Scailable to compile complex models to WebAssembly and subsequently how you can use the [`sclbl-webnode`](https://github.com/scailable/sclbl-webnode) for super easy deployment.
+* [Object recognition on the edge](https://www.scailable.net/demo/cifar/). This demo allows you to recognize object in images directly on the edge (i.e., in your browser). It shows how you can use Scailable to compile complex models to WebAssembly and subsequently how you can use the [`sclbl-webnode`](https://github.com/scailable/sclbl-webnode) for super easy deployment.
 * [Scailable supports running complex models](https://www.scailable.net/demo/avm/) (such at [Bayesian Additive Regression Trees](https://projecteuclid.org/euclid.aoas/1273584455)) in the cloud, on the edge, or on a browser. Check how we can flexibly generate posterior predictive inferences for automatic property valuation models, anytime, anywhere.
-* With Scailable, your can deploy your deep learning models anywhere. Run your model on an IoT device. Or within your browser. For example this [CIFAR ResNet image recognition model](https://www.scailable.net/demo/cifar/). The choice is yours!
 * [Sometimes what you need is performance](https://www.scailable.net/demo/bench/). We provide nothing less. The inferences from our models are extremely fast; check out some of our benchmarks.
 * An interactive [MNIST number recognition model](https://www.scailable.net/demo/mnist/). It updates its estimates as fast as you can draw!
 
