@@ -30,8 +30,8 @@ Next to the tutorials presented in this repository, we also have a number of int
 Some sample video's of the use of Scailable:
 
 * [Introducing the Scailable platform](https://youtu.be/47wUrjtgFcs). A simple video showcasing the basic functionalities of the Scailable platform.
-* [Image classification in the browser](https://www.youtube.com/watch?v=3m8V-zahU8g) Using PyTorch, ONNX, WebAssembly, and the sclbl-webnode to deploy object recognition directly in the browser. See also [https://www.scailable.net/demo/cifar/](https://www.scailable.net/demo/cifar/).
-* [Scailable Webinar](https://www.youtube.com/watch?v=ldhTSQ6K_Co&feature=youtu.be) Webinar explaining the Scailable deployment process to WebAssembly.
+* [Image classification in the browser](https://www.youtube.com/watch?v=3m8V-zahU8g). Using PyTorch, ONNX, WebAssembly, and the sclbl-webnode to deploy object recognition directly in the browser. See also [https://www.scailable.net/demo/cifar/](https://www.scailable.net/demo/cifar/).
+* [Scailable Webinar](https://www.youtube.com/watch?v=ldhTSQ6K_Co&feature=youtu.be). Webinar explaining the Scailable deployment process to WebAssembly.
 
 ## Posts:
 Some posts / articles:
