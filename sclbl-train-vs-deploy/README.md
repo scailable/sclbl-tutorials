@@ -15,7 +15,7 @@ In this post we clarify how we make sure that models trained with standard ML li
 ## Model training
 To illustrate the differences between model training and deployment, let's start by simulating some data. The code below generates 1000 observations according to the following simple model:
 
-![dgp](dgp.pdf)
+![dgp](dgp.png)
 
 ```python
 import numpy as np
