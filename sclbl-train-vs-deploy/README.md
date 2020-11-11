@@ -8,9 +8,9 @@
 
 > The code accompanying this post can be found [here](logistic-regression.ipynb).
 
-Scailable has helped many companies deploy their AI / ML models in various environments. We have contributed to model deployment in Healthcare, and, in the last few months, we have helped several companies move trained models to different types of IoT devices. Particularly n the latter case, requirements are often strict: both the number of compute cycles and the available memory are often limited. 
+In recent months we have helped many companies deploy their AI / ML models in various environments. We have contributed to model deployment in Healthcare, and, in the last few months, we have helped several companies move trained models to different types of IoT devices. Particularly in the latter case, requirements are often strict: both the number of compute cycles and the available memory are often limited. 
 
-In this post we clarify how we make sure that models trained with standard ML libraries such as PyTorch, Scikit-learn, and Tensorflow can be deployed efficiently on various edge devices. To make things tangible, we will examine the training and deployment of a simple logistic regression model. However, most of what we discuss here transfers directly to more complex models.
+In this post I clarify how we make sure that models trained using standard ML libraries such as PyTorch, Scikit-learn, and Tensorflow can be deployed efficiently on various edge devices. To make things tangible, we will examine the training and deployment of a simple logistic regression model. However, most of what we discuss here transfers directly to more complex models.
 
 ## Model training
 To illustrate the differences between model training and deployment, let's start by simulating some data. The code below generates 1000 observations according to the following simple model:
