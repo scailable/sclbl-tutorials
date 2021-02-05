@@ -1,20 +1,20 @@
 # ONNX from scratch 1: Designing a regression pipeline
 > 05-02-2020; This tutorial is also available on Medium.
 
-[ONNX](https://onnx.ai) has been around for a while, and it is becoming a succesfull intermediate format to move, often heavy, trained neural networks from one training tool to another (e.g., [move between pyTorch and Tensorflow](https://onnx.ai)), or to deploy models in the cloud using the [ONNX runtime](https://github.com/microsoft/onnxruntime). In these cases users often simple save a model to ONNX format, without worrying about the resulting ONNX graph. 
+[ONNX](https://onnx.ai) has been around for a while, and it is becoming a successful intermediate format to move, often heavy, trained neural networks from one training tool to another (e.g., [move between pyTorch and Tensorflow](https://onnx.ai)), or to deploy models in the cloud using the [ONNX runtime](https://github.com/microsoft/onnxruntime). In these cases users often simply save a model to ONNX format, without worrying about the resulting ONNX graph. 
 
-However, ONNX can be put to a much more versatile use: ONNX can easily be used to manually specify AI/ML processing pipelines, **including all the pre- and post-processing that is often neccesary for real-world deployments**. Additionally, due to its standardized and open structure, a pipeline stored in ONNX can easily be deployed, even on edge devices (by [automatic compilation to WebAssembly](https://www.scailable.net) for efficient deployment on various targets). In this tutorial we will show how to use the `onnx` `helper` tools in `python` to create a ONNX pipeline *from scratch* and deploy it efficiently.
+However, ONNX can be put to a much more versatile use: ONNX can easily be used to manually specify AI/ML processing pipelines, **including all the pre- and post-processing that is often necessary for real-world deployments**. Additionally, due to its standardized and open structure, a pipeline stored in ONNX can easily be deployed, even on edge devices (by [automatic compilation to WebAssembly](https://www.scailable.net) for efficient deployment on various targets). In this tutorial we will show how to use the `onnx` `helper` tools in `python` to create a ONNX pipeline *from scratch* and deploy it efficiently.
 
 The tutorial consists of the following parts:
 
-1. Some background on ONNX. Before we start it is usefull to conceptually understand what ONNX does.
+1. Some background on ONNX. Before we start it is useful to conceptually understand what ONNX does.
 2. The "house-hunt" scenario. In this tutorial we will focus on creating a pipeline to predict the price of an advertised house, and subsequently judge whether or not the house fits within our search constraints (i.e., our desiderata). 
-3. Model training. Although not really part of the deployment pipeline, we will show how we used `sklearn` to train the prediciton model.
+3. Model training. Although not really part of the deployment pipeline, we will show how we used `sklearn` to train the prediction model.
 4. Creating the ONNX pipeline. This is the main body of this tutorial, and we will take it step-by-step:
 	- Preprocessing: we will standardize the inputs using the results from our training.
 	- Inference: we will predict the (log) price using the model fitted during training.
 	- Post-processing: we will check whether the results fit with our desiderata.
-	- Putting it all togehter: we will merge the pre-processing, inference, and post-processing pipelines into one ONNX graph.
+	- Putting it all together: we will merge the pre-processing, inference, and post-processing pipelines into one ONNX graph.
 5. Deploying the model: one can use the ONNX runtime to deploy ONNX models, or optimize the fitted graph and deploy using [WebAssembly](https://webassembly.org). We will briefly explore both options.
 
 ## 1. What is ONNX?
@@ -24,15 +24,15 @@ According to the official ONNX website:
 
 Thus, ONNX is an open file format to store (**trained**) machine learning models/pipelines containing sufficient detail (regarding data types etc.) to move from one platform to another. The specificity of ONNX even allows one to automatically compile the stored operations to lower level languages for embedding on various devices. Effectively, an `onnx` file will contain all you need to know to reinstantiate a full data processing pipeline when moving from one platform to the other.
 
-Conceptually, the ONNX format is easy enough: An onnx file defines a [directed graph](https://webassembly.org) in which each edge represents a tensor with a specific type that is "moving" from one node to the other. The nodes themselves are called operators and they opertate on their inputs (i.e., the results of their parents in the graph), and submit the result of their operation to their children. ONNX specifies a [list of operations](https://github.com/onnx/onnx/blob/master/docs/Operators.md) which jointly allow one to specify virtually any AI/ML operation you might want to carry out (and if not, the set of operators is easily extendable).
+Conceptually, the ONNX format is easy enough: An onnx file defines a [directed graph](https://en.wikipedia.org/wiki/Directed_graph) in which each edge represents a tensor with a specific type that is "moving" from one node to the other. The nodes themselves are called operators and they operate on their inputs (i.e., the results of their parents in the graph), and submit the result of their operation to their children. ONNX specifies a [list of operations](https://github.com/onnx/onnx/blob/master/docs/Operators.md) which jointly allow one to specify virtually any AI/ML operation you might want to carry out (and if not, the set of operators is easily extendable).
 
 To provide a conceptual, example, suppose we would like to generate inferences from a [logistic regression model](https://en.wikipedia.org/wiki/Logistic_regression). Given an input vector `x` we would:
 
 1. Compute the linear predictor `ylin` using for example the `Gemm` operator to multiple our input vector `x` by the learned coefficients `beta`
-2. Transform the linear predictor to probablity scale using the `Sigmoid` operator.
+2. Transform the linear predictor to probability scale using the `Sigmoid` operator.
 3. Generate inference true or false using the `Less` operator.
 
-Thus, by effecitvely chaining a number of operators, we can generate inferences given some feature vector. Don't be fooled by the simplicity of the example however: due to ONNXs tensor support and extensive list of operators even complex DNNs for video processing can be represented in ONNX.
+Thus, by effectively chaining a number of operators, we can generate inferences given some feature vector. Don't be fooled by the simplicity of the example however: due to ONNXs tensor support and extensive list of operators even complex DNNs for video processing can be represented in ONNX.
 
 ## 2. Our house-hunt scenario
 To demonstrate how to create ONNX graphs from scratch, we introduce a simple scenario:
@@ -129,7 +129,7 @@ print("Interesting? {}".format(interesting))
 ## 4. Creating the ONNX pipeline. 
 Our ONNX pipeline should, given an example instance described by an input vector of length 3 (`yard,area,rooms`):
 
-1. [pre-processing] Standardize the input by substracting the mean (as observed in the training set) and dividing by the standard deviation.
+1. [pre-processing] Standardize the input by subtracting the mean (as observed in the training set) and dividing by the standard deviation.
 2. [inference] Predict the house price of the example instance on the log scale (using the coefficients from the trained `sklearn` model above).
 3. [post-processing] Transform the price back to the original scale and check wether a) the house is affordable, and b) whether it has a yard.
 
@@ -140,7 +140,7 @@ To be more precise, and introduce the ONNX operators used, we will be generating
 Note that in the code blocks below we will use the naming conventions introduced in this image.
 
 ### 4a. Pre-processing
-We will use the `onnx.helper` tools provided in `python` to construct our pipeline. We first create the constants, next the operating nodes (although constants are also operators), and subseqeuntly the graph:
+We will use the `onnx.helper` tools provided in `python` to construct our pipeline. We first create the constants, next the operating nodes (although constants are also operators), and subsequently the graph:
 
 ```python
 # The required constants:
@@ -331,18 +331,18 @@ print("Example {} is appealing: {}.".format(xin, result))
 
 The code above demonstrates the the first house in our dataset is not expected to fit with our desiderata as the predicted price exceeeds 400.000E.
 
-When viewed using [Netron](), our resulting ONNX pipeline looks like this:
+When viewed using [Netron](https://github.com/lutzroeder/netron), our resulting ONNX pipeline looks like this:
 
 ![The pipeline in Netron](sources/onnx-netron.png)
 
 Note that the ability to combine parts of graphs into other graphs as long as the input and output match makes it easy to store common pre- and post-processing operations in ONNX and reuse them in various projects.
 
 ## 5. Deployment.
-Above we hope to have shown how ONNX is not just some abstract file format used under-the-hood by various complex AI training tools. ONNX also makes it easy to construct pre- and post-processing pipelines manually by chaining hand-made ONNX blocks together. Thus, ONNX is a super effective tool to create data analyis pipelines that can be used (and re-used) anywhere.
+Above we hope to have shown how ONNX is not just some abstract file format used under-the-hood by various complex AI training tools. ONNX also makes it easy to construct pre- and post-processing pipelines manually by chaining hand-made ONNX blocks together. Thus, ONNX is a super effective tool to create data analysis pipelines that can be used (and re-used) anywhere.
 
 Once you have an ONNX pipeline, various options are available for its deployment:
 
-1. You could use the [onnxruntime](https://github.com/scailable/sclbl-tutorials/blob/master/sclbl-onnx-from-scratch-I/sources/manual-onnx-pipeline.ipynb) (which is what we have been using in some of the quick tests above). If you want to deploy on the cloud, one option would be to create a simple REST endpoint (using for example [Flask](https://flask.palletsprojects.com/en/1.1.x/)) that executes the `onnxruntime` and deploy it using [Docker](https://www.docker.com). While this is relatively easy, it is also often [quite inefficient](https://towardsdatascience.com/exploiting-the-differences-between-model-training-and-prediction-40f087e52923) (and memory consuming).
+1. You could use the [onnxruntime](https://github.com/microsoft/onnxruntime) (which is what we have been using in some of the quick tests above). If you want to deploy on the cloud, one option would be to create a simple REST endpoint (using for example [Flask](https://flask.palletsprojects.com/en/1.1.x/)) that executes the `onnxruntime` and deploy it using [Docker](https://www.docker.com). While this is relatively easy, it is also often [quite inefficient](https://towardsdatascience.com/exploiting-the-differences-between-model-training-and-prediction-40f087e52923) (and memory consuming).
 2. You can use tools such as those offered by [Scailable](https://www.scailable.net) to transpile your ONNX model to WebAssembly for extremely efficient deployment. Effectively, due to its level of detail, ONNX makes it possible to generate stand-alone executables in lower level languages automatically based on an ONNX graph. This provides native execution speed (when ported e.g., to `c`) and (when ported to a portable target like `.wasm`) allows you to move the exact same model from the cloud to the edge and even to [small (I)IoT devices](https://maurits-kaptein.medium.com/the-making-of-update-ai-ml-models-ota-e72e2219084b). 
 
 Pretty cool.
@@ -350,7 +350,7 @@ Pretty cool.
 To finish off, just a small size and speed comparison between the two deployment options mentioned above: 
 
 1. The full ONNX pipeline we created above consumes a little under 1Kb in memory. However, to run, the `onnxruntime` itself requires a bit over 200**M**b. Using this memory footprint, I can, on my local machine, execute our pipeline 1000 times in 1.9 seconds (when restarting the session anew each time).
-2. Using conversion to WebAssebmly (as done out-of-the-box by [Scailable](https://www.scailable.net)) the memory footprint is about 70Kb for the `.wasm` binary (which is larger than the `onnx` specificaiton as it **includes** the functional specification of the neccesary operators) but only 60Kb for the runtime. **Thus, in total less than < 0.2 Mb**. Using this memory footprint I can, on the same local machine, generate 1000 inferences in 0.7 seconds (similarly reloading anew each time; without reloading the time difference between the ONNX and WebAssembly runtimes is neglectible as both, once initialized, effectively run at almost native speed). 
+2. Using conversion to WebAssembly (as done out-of-the-box by [Scailable](https://www.scailable.net)) the memory footprint is about 70Kb for the `.wasm` binary (which is larger than the `onnx` specification as it **includes** the functional specification of the necessary operators) but only 60Kb for the runtime. **Thus, in total less than < 0.2 Mb**. Using this memory footprint I can, on the same local machine, generate 1000 inferences in 0.7 seconds (similarly reloading anew each time; without reloading the time difference between the ONNX and WebAssembly runtimes is neglectable as both, once initialized, effectively run at almost native speed). 
 
 So yeah, combining ONNX with WebAssembly provides expressiveness (ONNX) and efficiency (WASM), across all targets.
 
