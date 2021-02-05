@@ -1,20 +1,20 @@
 # ONNX from scratch 1: Designing a regression pipeline
 > 05-02-2020; This tutorial is also available on Medium.
 
-[ONNX]() has been around for a while, and it is becoming a successful intermediate format to move, often heavy, trained neural networks from one training tool to another (e.g., move between PyTorch and Tensorflow), or to deploy models in the cloud using the ONNX runtime. In these cases users often simply save a model to ONNX format, without worrying about the resulting ONNX graph. 
+[ONNX]() has been around for a while, and it is becoming a succesfull intermediate format to move, often heavy, trained neural networks from one training tool to another (e.g., move between pyTorch and Tensorflow), or to deploy models in the cloud using the ONNX runtime. In these cases users often simple save a model to ONNX format, without worrying about the resulting ONNX graph. 
 
-However, ONNX can be put to a much more versatile use: ONNX can easily be used to manually specify AI/ML processing pipelines, including all the pre- and post-processing that is often necessary for real-world deployments. Additionally, due to its standardized and open structure, a pipeline stored in ONNX can easily be deployed, even on edge devices (by automatic compilation to WebAssembly for efficient deployment on various targets). In this tutorial we will show how to use the `onnx` `helper` tools in `python` to create a ONNX pipeline *from scratch* and deploy it efficiently.
+However, ONNX can be put to a much more versatile use: ONNX can easily be used to manually specify AI/ML processing pipelines, including all the pre- and post-processing that is often neccesary for real-world deployments. Additionally, due to its standardized and open structure, a pipeline stored in ONNX can easily be deployed, even on edge devices (by automatic compilation to WebAssembly for efficient deployment on various targets). In this tutorial we will show how to use the `onnx` `helper` tools in `python` to create a ONNX pipeline *from scratch* and deploy it efficiently.
 
 The tutorial consists of the following parts:
 
-1. Some background on ONNX. Before we start it is useful to conceptually understand what ONNX does.
+1. Some background on ONNX. Before we start it is usefull to conceptually understand what ONNX does.
 2. The "house-hunt" scenario. In this tutorial we will focus on creating a pipeline to predict the price of an advertised house, and subsequently judge it the house fits within our search constraints. 
-3. Model training. Although not really part of the deployment pipeline, we will show how we used `sklearn` to train the prediction model.
+3. Model training. Although not really part of the deployment pipeline, we will show how we used `sklearn` to train the prediciton model.
 4. Creating the ONNX pipeline. We will take it step-by-step:
 	- Preprocessing: we will standardize the inputs using the results from our training.
 	- Inference: we will predict the (log) price using the model fitted during training.
 	- Post-processing: we will check whether the results fit with our desiderata.
-	- Putting it all together: we will merge the pre-processing, inference, and post-processing pipelines into one ONNX graph.
+	- Putting it all togehter: we will merge the pre-processing, inference, and post-processing pipelines into one ONNX graph.
 5. Deploying the model: one can use the ONNX runtime to deploy ONNX models, or optimize the fitted graph and deploy using WebAssembly. We will briefly explore both options.
 
 ## 1. What is ONNX?
@@ -22,14 +22,14 @@ According to the official ONNX website:
 
 *"ONNX is an open format built to represent machine learning models. ONNX defines a common set of operators - the building blocks of machine learning and deep learning models - and a common file format to enable AI developers to use models with a variety of frameworks, tools, runtimes, and compilers."* (see [onnx.ai](https://onnx.ai)).
 
-Thus, ONNX is an open file format to store (**trained**) machine learning models/pipelines containing sufficient detail (regarding data types etc.) to move from one platform to another. The specificity of ONNX even allows one to automatically compile the stored operations to lower level languages for embedding on various devices. Effectively, an `onnx` file will contain all you need to know to reinstantiate a full processing data processing pipeline when moving from one platform to the other.
+Thus, ONNX is an open file format to store (**trained**) machine learning models/pipelines containing sufficient detail (regarding data types etc.) to move from one platform to another. The specificity of ONNX even allows one to automatically compile the stored operations to lower level languages for embedding on various devices. Effectively, an `onnx` file will contain all you need to know to reinstantiate a full procesing data processing pipeline when moving from one platform to the other.
 
-Conceptually, the ONNX format is easy enough: An onnx file defines a [directed graph]() in which each edge represents a tensor with a specific type that is "moving" from one node to the other. The nodes themselves are called operators and they operate on their inputs (i.e., the results of their parents in the graph), and submit the result to their children. ONNX specifies a [list of operations]() which jointly allow one to specify virtually any AI/ML operation you might want to carry out (and if not, the set of operators is easily extendable).
+Conceptually, the ONNX format is easy enough: An onnx file defines a [directed graph]() in which each edge reprents a tensor with a specific type that is "moving" from one node to the other. The nodes themselves are called operators and they opertate on their inputs (i.e., the results of their parents in the graph), and submit the result to their children. ONNX specifies a [list of operations]() which jointly allow one to specify virtually any AI/ML operation you might want to carry out (and if not, the set of operators is easily extendable).
 
 To provide a simple, conceptual, example, suppose we would like to generate inferences from a logistic regression model. Given an input vector `x` we would:
 
 * Compute the linear predictor `ylin` using for example the `Gemm` operator to multiple our input vector `x` by the learned coefficients `beta`
-* Transform the linear predictor to probability scale using the `Sigmoid` operator.
+* Transform the linear predictor to probablity scale using the `Sigmoid` operator.
 * Generate inference true or false using the `Less` operator.
 
 Thus, by chaining a number of operators, we can generate a predictions given some feature vector. Don't be fooled by the simplicity of the example however: due to ONNXs tensor support and extensive list of operators even complex DNNs for video processing can be represented in ONNX.
@@ -39,12 +39,12 @@ To demonstrate how to create ONNX graphs from scratch, we introduce a simple sce
 
 *"Suppose you are looking for a new house in your neighborhood. Given a dataset of previous house sales containing the yard-size `yard`, living area `area`, and number of rooms `rooms` of sold houses and their prices `price`, construct a model to predict the price of a newly advertised house (i.e., you are given only the yard-size, area, and number of rooms). Next, you are interested in any house that is available for less than 400.000 euros, and has a yard (i.e., the yard-size is larger than 0)."*
 
-In this tutorial we will construct a data processing pipeline, including a linear regression model for inference, which given an input vector `(yard,area,rooms)` provide a Boolean value indicating whether or not the house is of interest.
+In this tutorial we will construct a data processing pipeline, including a linear regression model for inference, which given an input vector `(yard,area,rooms)` provide a boolean value indicating whether or not the house is of interest.
 
 ## 3. Model training
-To create the pipeline, we will first need to create the model that we are using to predict the prices. The code below opens the data file `houses.csv` and generates the model. Note that we preform several steps:
+To create the pipeline, we will first need to create the model that we are using to predit the prices. The code below opens the data file `houses.csv` and generates the model. Note that we preform several steps:
 
-* We standardize the inputs (thus, for standardization in our pre-processing pipeline we will need the `mean` and `std` of each of the input variables).
+* We standardize the inputs (thus, for destandardization in our pre-processing pipeline we will need the `mean` and `std` of each of the input variables).
 * We log transform the prices (thus, in our post-processing pipeline we will need to transform our inference back to the correct scale).
 * We fit a simple linear regression model (and we store the estimated coefficients for use in our processing pipeline.
 
@@ -130,8 +130,8 @@ print("Interesting? {}".format(interesting))
 Our ONNX pipeline should, given an example instance described by an input vector of length 3 (`yard,area,rooms`):
 
 1. [pre-processing] Standardize the input by substracting the mean (as observed in the training set) and dividing by the standard deviation.
-2. [inference] Predict the house price of the example instance on the log scale (using the coefficients from the trained `sklearn` model).
-3. [post-processing] Transform the price back to the original scale and check whether a) the house is affordable, and b) whether it has a yard.
+2. [inference] Predict the houst price of the example instance on the log scale (using the coefficients from the trained `sklearn` model).
+3. [post-processing] Transform the price back to the original scale and check wether a) the house is affordable, and b) whether it has a yard.
 
 To be more precise, and introduce the ONNX operators used, we will be generating the following pipeline:
 
@@ -140,17 +140,17 @@ To be more precise, and introduce the ONNX operators used, we will be generating
 Note that in the code blocks below we will use the naming conventions introduced in this image.
 
 ### 4a. Pre-processing
-We will use the `onnx.helper` tools provided in `python` to construct our pipeline. We first create the constants, next the operating nodes (although constants are also operators), and subsequently the graph:
+We will use the `onnx.helper` tools provided in `python` to construct our pipeline. We first create the constants, next the operating nodes (although constants are also operators), and subseqeuntly the graph:
 
 ```python
 # The required constants:
-c1 = h.make_node('Constant', inputs=[], outputs=['c1'], name="c1", 
-        value=h.make_tensor(name="c1", data_type=tp.FLOAT, 
+c1 = h.make_node('Constant', inputs=[], outputs=['c1'], name="c1-node", 
+        value=h.make_tensor(name="c1v", data_type=tp.FLOAT, 
         dims=training_results['barX'].shape, 
         vals=training_results['barX'].flatten()))
 
-c2 = h.make_node('Constant', inputs=[], outputs=['c2'], name="c2", 
-        value=h.make_tensor(name="c2", data_type=tp.FLOAT, 
+c2 = h.make_node('Constant', inputs=[], outputs=['c2'], name="c2-node", 
+        value=h.make_tensor(name="c2v", data_type=tp.FLOAT, 
         dims=training_results['sdX'].shape, 
         vals=training_results['sdX'].flatten()))
 
@@ -193,13 +193,13 @@ After creating our pre-processing pipeline, we follow a similar approach to crea
 
 ```python
 # The constants:
-c3 = h.make_node('Constant', inputs=[], outputs=['c3'], name="c3", 
-        value=h.make_tensor(name="c3", data_type=tp.FLOAT, 
+c3 = h.make_node('Constant', inputs=[], outputs=['c3'], name="c3-node", 
+        value=h.make_tensor(name="c3v", data_type=tp.FLOAT, 
         dims=training_results['beta'].shape, 
         vals=training_results['beta'].flatten()))
 
-c4 = h.make_node('Constant', inputs=[], outputs=['c4'], name="c4", 
-        value=h.make_tensor(name="c4", data_type=tp.FLOAT, 
+c4 = h.make_node('Constant', inputs=[], outputs=['c4'], name="c4-node", 
+        value=h.make_tensor(name="c4v", data_type=tp.FLOAT, 
         dims=training_results['intercept'].shape, 
         vals=training_results['intercept'].flatten()))
 
@@ -240,27 +240,27 @@ The post processing pipeline is a bit more involved as it checks whether the hou
 
 ```python
 # Constants (note using the constraints object created in block 0 above)
-c5 = h.make_node('Constant', inputs=[], outputs=['c5'], name="c5", 
-        value=h.make_tensor(name="c5", data_type=tp.FLOAT, 
+c5 = h.make_node('Constant', inputs=[], outputs=['c5'], name="c5-node", 
+        value=h.make_tensor(name="c5v", data_type=tp.FLOAT, 
         dims=constraints['maxprice'].shape, 
         vals=constraints['maxprice'].flatten()))
-c6 = h.make_node('Constant', inputs=[], outputs=['c6'], name="c6", 
-        value=h.make_tensor(name="c6", data_type=tp.FLOAT, 
+c6 = h.make_node('Constant', inputs=[], outputs=['c6'], name="c6-node", 
+        value=h.make_tensor(name="c6v", data_type=tp.FLOAT, 
         dims=constraints['minyard'].shape, 
         vals=constraints['minyard'].flatten()))
 
 # Auxilary constants for the slice operator:
-caux1 = h.make_node('Constant', inputs=[], outputs=['caux1'], name="caux1",
-        value=h.make_tensor(name='caux1', data_type=tp.INT32,
+caux1 = h.make_node('Constant', inputs=[], outputs=['caux1'], name="caux1-node",
+        value=h.make_tensor(name='caux1v', data_type=tp.INT32,
         dims=np.array([0]).shape, vals=np.array([0]).flatten()))
-caux2 = h.make_node('Constant', inputs=[], outputs=['caux2'], name="caux2",
-        value=h.make_tensor(name='caux2', data_type=tp.INT32,
+caux2 = h.make_node('Constant', inputs=[], outputs=['caux2'], name="caux2-node",
+        value=h.make_tensor(name='caux2v', data_type=tp.INT32,
         dims=np.array([1]).shape, vals=np.array([1]).flatten()))
-caux3 = h.make_node('Constant', inputs=[], outputs=['caux3'], name="caux3",
-        value=h.make_tensor(name='caux3', data_type=tp.INT32,
+caux3 = h.make_node('Constant', inputs=[], outputs=['caux3'], name="caux3-node",
+        value=h.make_tensor(name='caux3v', data_type=tp.INT32,
         dims=np.array([0]).shape, vals=np.array([0]).flatten()))
-caux4 = h.make_node('Constant', inputs=[], outputs=['caux4'], name="caux4",
-        value=h.make_tensor(name='caux4', data_type=tp.INT32,
+caux4 = h.make_node('Constant', inputs=[], outputs=['caux4'], name="caux4-node",
+        value=h.make_tensor(name='caux4v', data_type=tp.INT32,
         dims=np.array([1]).shape, vals=np.array([1]).flatten()))
             
 # Nodes:
@@ -336,7 +336,7 @@ When viewed using [Netron](), our resulting ONNX pipeline looks like this:
 ![The pipeline in Netron](sources/onnx-netron.png)
 
 ## 5. Deployment.
-Above we hope to have shown how ONNX is not just some abstract file format used under-the-hood by various complex AI training tools: it is also an easy to construct pre- and post-processing pipelines manually by chaining ONNX blocks together. Thus, ONNX is a super effective tool to create data analysis pipelines that can be used anywhere.
+Above we hope to have shown how ONNX is not just some abstract file format used under-the-hood by various complex AI training tools: it is also an easy to construct pre- and post-processing pipelines manually by chaining ONNX blocks together. Thus, ONNX is a super effective tool to create data analyis pipelines that can be used anywhere.
 
 Once you have an ONNX pipeline, various options are available for its deployment:
 
@@ -345,7 +345,12 @@ Once you have an ONNX pipeline, various options are available for its deployment
 
 Pretty cool.
 
-To finish off, just a small speed comparison: executing the pipeline we just build using the `onnxruntime` 1000 times on my local machine take XX seconds, whereas doing the same in WebAssembly using the WebAssembly micro container offered by Scailable we can do the same in XX seconds.
+To finish off, just a small size and speed comparison. 
+
+* The full ONNX pipeline we created above consumes a little under 1Kb in memory. However, to run, the `onnxruntime` itself requires a bit over 200**M**b. Using this memory footprint, I can, on my local machine, execute our pipeline 1000 times in 1.9 seconds (when restarting the session anew each time).
+* Using conversion to WebAssebmly (as done out-of-the-box by [Scailable]()) the memory footprint is about 70Kb for the `.wasm` binary (which is larger than the `onnx` specificaiton as it **includes** the neccesary operators) but only 60Kb for the runtime. Thus, in total less than < 0.01 Mb. Using this memory footprint I can, on the same local machine, generate 1000 inferences in .7 seconds (similarly reloading anew each time; with reloading the difference between the ONNX and WebAssembly runtimes is neglectible). 
+
+So yeah, combining ONNX with WebAssembly provides expressiveness (ONNX) and efficiency (WASM), across all targets.
 
 I hope you enjoyed this tutorial; feel free to reach out with any ONNX / WebAssembly deployment related questions!
 
