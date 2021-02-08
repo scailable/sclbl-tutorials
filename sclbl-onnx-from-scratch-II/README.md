@@ -191,9 +191,6 @@ int main(int argc, char *argv[]) {
 
 }
 
-
-waarbij:
-
 char *sclbl_util_bmp_to_json(char *imgPath) {
 
 	// ...
