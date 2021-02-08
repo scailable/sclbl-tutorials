@@ -1,5 +1,5 @@
 # ONNX from scratch 1: Designing a regression pipeline
-> 05-02-2020; This tutorial is also available on Medium.
+> 05-02-2021; This tutorial is also available on Medium.
 
 [ONNX](https://onnx.ai) has been around for a while, and it is becoming a successful intermediate format to move, often heavy, trained neural networks from one training tool to another (e.g., [move between pyTorch and Tensorflow](https://onnx.ai)), or to deploy models in the cloud using the [ONNX runtime](https://github.com/microsoft/onnxruntime). In these cases users often simply save a model to ONNX format, without worrying about the resulting ONNX graph. 
 
