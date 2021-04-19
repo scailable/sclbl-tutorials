@@ -1,4 +1,4 @@
-# Scailable platform tiral terms & conditions
+# Scailable platform trial terms & conditions
 > Version 0.1.12, 03-03-2021.
 
 ## Preliminaries
