@@ -30,6 +30,101 @@ Out tutorials explain (parts of) our technical stack. They explain our self-serv
 * [sclbl-using-the-webnode](https://github.com/scailable/sclbl-tutorials/tree/master/sclbl-using-the-webnode): A tutorial that demonstrates how to run a Scailable WebAssembly task either in the browser or in our Scailable cloud - automatic fallback included!
 * [sclbl-pytorch-onnx](https://github.com/scailable/sclbl-tutorials/blob/master/sclbl-pytorch-onnx/README.md): A tutorial demonstrating how to convert models fitted using PyTorch to WebAssembly using the Scailable platform and [ONNX](http://onnx.ai).
 
+## sclbl input and output format
+
+
+
+### Preferred format: base64 encoded byte array
+
+The most practical way to send tensors to and receive tensors from a Scailable runtime is to convert your float/double/int8/int32/bool array into a byte array, and then base64 encoding the byte array.
+
+For instance, first cast your array:
+
+```c
+int32_t int_input_array[500];
+unsigned char *bytes = (unsigned char *) int_input_array;
+```
+
+.. and then encode it:
+
+```c
+#include "sclbl_util.h"
+
+char *enc = sclbl_b64_encode((const unsigned char *) *bytes, 500 * sizeof(int32_t));
+```
+
+
+
+### Input examples
+
+The available `inputType` :   `json`, `raw`, and `pb`.
+
+Single JSON input tensor:
+
+```json
+{"input": [0.000593897,0.000020396,0.036555252,0.009653889,0.000281286,0.952525370,0.000369997], "inputType": "json"}
+```
+
+Two JSON input tensors:
+
+```json
+{"input": [[0.000123895,0.000025326], [0.036555252,0.009653889,0.000281286]], "inputType": "json"}
+```
+
+Single Base64 encoded byte array input tensor:
+
+```json
+{"input": "MjQzNDQ0NTY0NTM0MzI=", "inputType": "raw"}
+```
+
+Three Base64 encoded byte array input tensors:
+
+```json
+{"input": ["MjQzNDQ0NTY0NTM0MzI=","MTExMjMzMjE=","OTIzMzQ1NDM0MzU="], "outputType": "raw"}
+```
+
+Two Base64 encoded ProtoBuf input tensors:
+
+```json
+{"input": ["c2Rmc2Zkc2Zkc2FmZHNhZndyM3FmYWZld2Zm","mZHNhZndyM3FmYWZld2ZmM0MjM0MmFmd2FlMzQ="], "outputType": "pb"}
+```
+
+
+
+### Output examples
+
+The available `outputType` :  `json`,  and `raw`,
+
+Single JSON output tensor
+
+```json
+{"output": [0.000593897,0.000020396,0.036555252,0.009653889,0.000281286,0.952525370,0.000369997], "outputType": "json"}
+```
+
+Two JSON output tensors
+
+```json
+{"output": [[0.000123895,0.000025326], [0.036555252,0.009653889,0.000281286]], "outputType": "json"}
+```
+
+Single Base64 encoded byte array output tensor
+
+```json
+{"output": "MjQzNDQ0NTY0NTM0MzI=", "outputType": "raw"}
+```
+
+Three Base64 encoded byte array output tensors
+
+```json
+{"output": ["MjQzNDQ0NTY0NTM0MzI=","MTExMjMzMjE=","OTIzMzQ1NDM0MzU="], "outputType": "raw"}
+```
+
+
+
+------
+
+Copyright 2021, Scailable, All rights reserved.
+
 ## Interactive demos
 Next to the tutorials presented in this repository, we also have a number of interactive demos:
 
