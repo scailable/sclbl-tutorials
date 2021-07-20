@@ -80,13 +80,13 @@ Single Base64 encoded byte array input tensor:
 Three Base64 encoded byte array input tensors:
 
 ```json
-{"input": ["MjQzNDQ0NTY0NTM0MzI=","MTExMjMzMjE=","OTIzMzQ1NDM0MzU="], "outputType": "raw"}
+{"input": ["MjQzNDQ0NTY0NTM0MzI=","MTExMjMzMjE=","OTIzMzQ1NDM0MzU="], "inputType": "raw"}
 ```
 
 Two Base64 encoded ProtoBuf input tensors:
 
 ```json
-{"input": ["c2Rmc2Zkc2Zkc2FmZHNhZndyM3FmYWZld2Zm","mZHNhZndyM3FmYWZld2ZmM0MjM0MmFmd2FlMzQ="], "outputType": "pb"}
+{"input": ["c2Rmc2Zkc2Zkc2FmZHNhZndyM3FmYWZld2Zm","mZHNhZndyM3FmYWZld2ZmM0MjM0MmFmd2FlMzQ="], "inputType": "pb"}
 ```
 
 
